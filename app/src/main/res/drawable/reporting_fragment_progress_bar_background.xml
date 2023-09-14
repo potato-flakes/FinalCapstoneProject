@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- custom_progress_bar_background.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background shape (optional) -->
+    <!-- You can customize the shape and appearance of the background here -->
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+
+    <!-- Progress shape -->
+    <!-- You can customize the shape and appearance of the progress here -->
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape android:shape="rectangle">
+                <solid android:color="@color/colorPrimary" /> <!-- Set the desired progress color for the progress bar -->
+            </shape>
+        </clip>
+    </item>
+</layer-list>

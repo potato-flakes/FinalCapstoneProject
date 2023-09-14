@@ -1,0 +1,68 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/reporting_back_warning_dialog_background"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <!-- Icon -->
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_warning" />
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="Are you sure?"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="10dp"></TextView>
+
+    <!-- Message -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="All the data from the previous step will be lost."
+        android:textColor="@android:color/black"
+        android:textSize="16sp"></TextView>
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btnGoBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/reporting_button_rounded_background"
+            android:gravity="center"
+            android:text="Go Back"
+            android:textColor="@android:color/white"></Button>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="5dp" />
+
+        <Button
+            android:id="@+id/btnCancelReport"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:background="@drawable/reporting_person_no_button_selector"
+            android:gravity="center"
+            android:text="Cancel Report"
+            android:textColor="@color/black"></Button>
+
+    </LinearLayout>
+</LinearLayout>

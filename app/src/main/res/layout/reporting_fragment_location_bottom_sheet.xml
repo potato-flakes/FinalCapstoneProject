@@ -1,0 +1,157 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:text="Select location"
+            android:textAlignment="center"
+            android:textColor="#4CAF50"
+            android:textSize="34sp"
+            android:layout_marginBottom="20dp"
+            android:fontFamily="@font/poppinsbold" />
+
+        <LinearLayout
+            android:id="@+id/textViewLayout"
+            android:layout_below="@id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:gravity="center"
+                android:src="@drawable/ic_your_location"
+                android:contentDescription="Description Icon"/>
+
+            <TextView
+                android:id="@+id/locationTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location"
+                android:textSize="14sp"
+                android:padding="2dp"
+                android:layout_marginStart="5dp"
+                android:fontFamily="@font/poppinsmedium"/>
+
+        </LinearLayout>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/textViewLayout"
+            android:layout_above="@id/saveButton"
+            app:cardCornerRadius="10dp"
+            android:layout_marginBottom="10dp"
+            app:cardElevation="4dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <org.osmdroid.views.MapView
+                    android:id="@+id/mapViews"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+
+        <RelativeLayout
+            android:id="@+id/relativeLayout"
+            android:layout_below="@id/textViewLayout"
+            android:elevation="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp">
+            <LinearLayout
+                android:id="@+id/searchBarLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/reporting_search_button_background"
+                android:padding="10dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <AutoCompleteTextView
+                    android:id="@+id/searchEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
+                    android:hint="Search barangay here"
+                    android:inputType="text"
+                    android:fontFamily="@font/poppinsmedium"
+                    style="@style/SearchEditTextStyle" />
+
+
+                <ImageButton
+                    android:id="@+id/searchButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_search_edittext" />
+
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/setLocationAutomaticallyButton"
+                android:layout_alignParentEnd="true"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:padding="8dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="5dp"
+                android:layout_below="@id/searchBarLayout"
+                android:src="@drawable/ic_setlocationauto" />
+
+            <ImageButton
+                android:id="@+id/setLocationManuallyButton"
+                android:layout_alignParentEnd="true"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_below="@id/setLocationAutomaticallyButton"
+                android:src="@drawable/reporting_toggle_button_icon_selector"
+                android:layout_marginBottom="5dp"
+                android:padding="8dp" />
+
+            <ImageButton
+                android:id="@+id/enableDraggingButton"
+                android:layout_alignParentEnd="true"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_below="@id/setLocationManuallyButton"
+                android:src="@drawable/ic_move"
+                android:padding="8dp" />
+
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/poppinsmedium"
+            android:textColor="@color/white"
+            android:background="@drawable/reporting_date_button_selected_shape"
+            android:layout_alignParentBottom="true"
+            android:text="Save" />
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

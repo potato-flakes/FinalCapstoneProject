@@ -1,0 +1,29 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/reporting_crimetpye_error_message_background"
+    android:paddingStart="16dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="8dp"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_error"
+        android:tint="#FF0000"
+        android:layout_gravity="center_vertical" />
+
+    <TextView
+        android:id="@+id/customErrorMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FF0000"
+        android:textSize="14sp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="8dp"
+        android:text="Please select a crime type" />
+
+</LinearLayout>

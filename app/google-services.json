@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "475474387369",
+    "project_id": "recyclearn-398606",
+    "storage_bucket": "recyclearn-398606.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:475474387369:android:6a99cbc3d87f61c117e4b8",
+        "android_client_info": {
+          "package_name": "com.system.finalcapstoneproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "475474387369-p8ksspgv7spr0hjbu7gr58p0m236slk4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDR3VfGxdb7O1gfD_y0E5JFGu__x13KGpw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "475474387369-p8ksspgv7spr0hjbu7gr58p0m236slk4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

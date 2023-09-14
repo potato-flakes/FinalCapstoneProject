@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference
+        android:icon="@null"
+        android:layout="@layout/custom_preference_layout"
+        android:summary="       Welcome to Pop-up notification. You can customize how notifications appear and set the notification interval below."
+        android:title="Pop-up Notification" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:icon="@drawable/ic_popup_notification"
+        android:key="notification_preference"
+        android:summary="Enable or disable popup notifications"
+        android:summaryOff="Notifications are disabled"
+        android:summaryOn="Notifications are enabled"
+        android:title="Enable Notifications" />
+
+    <ListPreference
+        android:defaultValue="1"
+        android:entries="@array/notification_interval_entries"
+        android:entryValues="@array/notification_interval_values"
+        android:icon="@drawable/ic_interval"
+        android:key="notification_interval"
+        android:summary="Set the interval for notifications"
+        android:title="Notification Interval" />
+
+    <Preference
+        android:icon="@null"
+        android:key="notification_save"
+        android:layout="@layout/custom_save_preference_layout" />
+</PreferenceScreen>

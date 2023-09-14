@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="icon_size">24dp</dimen> <!-- Adjust the size as needed -->
+    <dimen name="icon_padding_right">30dp</dimen>
+    <dimen name="image_corner_radius">8dp</dimen>
+    <dimen name="image_width">150dp</dimen>
+    <dimen name="image_height">150dp</dimen>
+    <dimen name="image_left_margin">4dp</dimen>
+    <dimen name="image_top_margin">0dp</dimen>
+    <dimen name="image_right_margin">4dp</dimen>
+    <dimen name="image_bot_margin">0dp</dimen>
+    <dimen name="delete_icon_margin">4dp</dimen>
+</resources>

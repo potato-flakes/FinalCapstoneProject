@@ -1,0 +1,59 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp">
+
+            <!-- Header Image -->
+            <ImageView
+                android:elevation="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/reporting_report_header"
+                android:scaleType="centerCrop"
+                android:alpha="0.9" />
+
+            <!-- Overlay color -->
+            <View
+                android:elevation="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/colorPrimary"
+                android:alpha="0.8" /> <!-- Set the desired opacity (0.0 to 1.0) -->
+
+            <!-- Existing header layout -->
+            <RelativeLayout
+                android:elevation="15dp"
+                android:id="@+id/mainLinearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:gravity="center">
+
+                <!-- Existing header content -->
+                <TextView
+
+                    android:id="@+id/textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Create Report"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="24sp"
+                    android:layout_marginBottom="20dp"
+                    android:fontFamily="@font/poppinsbold" />
+
+            </RelativeLayout>
+        </FrameLayout>
+
+        <!-- Rest of your layout -->
+        <!-- ... -->
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

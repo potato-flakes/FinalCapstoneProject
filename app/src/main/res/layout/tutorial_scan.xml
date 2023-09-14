@@ -1,0 +1,51 @@
+<!-- res/layout/tutorial_scan.xml -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/textViewTutorialTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:fontFamily="@font/poppinsbold"
+        android:paddingBottom="16dp"
+        android:text="Pet Bottle Scanner"
+        android:textSize="24sp" />
+
+    <!-- Description -->
+    <TextView
+        android:id="@+id/textViewTutorialDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:fontFamily="@font/poppinsmedium"
+        android:paddingBottom="16dp"
+        android:text="      Pete Bottle Scanner is a feature designed to help users identify and manage plastic bottles for recycling. "
+        android:textSize="14sp"
+        android:textAlignment="viewStart"
+        android:gravity="start"/>
+
+    <!-- Image -->
+    <ImageView
+        android:id="@+id/imageViewTutorial"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:paddingBottom="16dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_camera" />
+
+    <!-- Button to Redirect -->
+    <Button
+        android:id="@+id/buttonRedirect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:fontFamily="@font/poppinsmedium"
+        android:text="Go to Scan Feature" />
+</LinearLayout>

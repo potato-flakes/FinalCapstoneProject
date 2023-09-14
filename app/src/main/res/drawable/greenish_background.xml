@@ -1,0 +1,4 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#FF4CAF50" /> <!-- Greenish color -->
+    <corners android:radius="20dp" /> <!-- Half the width of the TextView -->
+</shape>
