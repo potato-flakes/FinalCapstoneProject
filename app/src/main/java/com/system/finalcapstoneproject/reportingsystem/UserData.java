@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserData {
+    private String user_id;
     private String report_id;
     private String crimeType;
     private boolean isYesButtonSelected = true;
@@ -38,6 +39,13 @@ public class UserData {
     }
 
     // Create getters and setters for each field
+    public String getUserId() {
+        return user_id;
+    }
+
+    public void setUserId(String user_id) {
+        this.user_id = user_id;
+    }
 
     public String getCrimeType() {
         return crimeType;

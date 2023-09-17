@@ -1,8 +1,6 @@
-package com.system.finalcapstoneproject.reportingsystem;
+package com.system.finalcapstoneproject.CreateTutorial;
 
 import android.animation.ObjectAnimator;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -20,8 +18,12 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.system.finalcapstoneproject.R;
+import com.system.finalcapstoneproject.reportingsystem.Step1Fragment;
+import com.system.finalcapstoneproject.reportingsystem.Step2Fragment;
+import com.system.finalcapstoneproject.reportingsystem.Step3Fragment;
+import com.system.finalcapstoneproject.reportingsystem.UserData;
 
-public class createReport_activity extends AppCompatActivity{
+public class CreateTutorialActivity extends AppCompatActivity{
 
     private int currentPage = 0; // Start from the first page
     private ProgressBar userProgressBar;
@@ -37,7 +39,7 @@ public class createReport_activity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.sample_layout);
+        setContentView(R.layout.tutorial_layout);
 
         userProgressBar = findViewById(R.id.userProgressBar);
         textViewProgress = findViewById(R.id.text_view_progress);
@@ -46,14 +48,9 @@ public class createReport_activity extends AppCompatActivity{
         containerLayout = findViewById(R.id.progress_container);
         loadingView = getLayoutInflater().inflate(R.layout.reporting_loading_screen, containerLayout, false);
         userData = new UserData();
-        SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
-        String user_id = sharedPreferences.getString("user_id", "");
-        Log.e("createReport_activity", "retrieveUserDetails - User ID:" + user_id);
-
-        userData.setUserId(user_id);
 
         // Start the form by showing the first fragment
-        navigateToNextFragment(new Step1Fragment());
+        navigateToNextFragment(new TutorialStep1Fragment());
     }
 
     public void navigateToNextFragment(Fragment fragment) {
@@ -84,8 +81,8 @@ public class createReport_activity extends AppCompatActivity{
                 break;
         }
         // Pass the userData to the next fragment
-        if (fragment instanceof Step1Fragment) {
-            ((Step1Fragment) fragment).setUserData(userData);
+        if (fragment instanceof TutorialStep1Fragment) {
+            ((TutorialStep1Fragment) fragment).setUserData(userData);
         } else if (fragment instanceof Step2Fragment) {
             ((Step2Fragment) fragment).setUserData(userData);
         } else if (fragment instanceof Step3Fragment) {
@@ -99,8 +96,8 @@ public class createReport_activity extends AppCompatActivity{
         currentPage--;
         Log.e("createReportActivity", "navigateToPreviousFragment after: " + currentPage);
         // Pass the userData to the previous fragment
-        if (fragment instanceof Step1Fragment) {
-            ((Step1Fragment) fragment).setUserData(userData);
+        if (fragment instanceof TutorialStep1Fragment) {
+            ((TutorialStep1Fragment) fragment).setUserData(userData);
         } else if (fragment instanceof Step2Fragment) {
             ((Step2Fragment) fragment).setUserData(userData);
         } else if (fragment instanceof Step3Fragment) {
@@ -123,16 +120,16 @@ public class createReport_activity extends AppCompatActivity{
         // Update progressLabel and typeLabel based on currentPage
         switch (currentPage) {
             case 1:
-                progressLabel.setText("Next: Crime Details");
-                typeLabel.setText("Crime Type");
+                progressLabel.setText("Next: Tutorial Details");
+                typeLabel.setText("Tutorial Title");
                 break;
             case 2:
-                progressLabel.setText("Next: Personal Details");
-                typeLabel.setText("Crime Details");
+                progressLabel.setText("Next: User Details");
+                typeLabel.setText("Tutorial Details");
                 break;
             case 3:
                 progressLabel.setText("Next: Summary Details");
-                typeLabel.setText("Personal Details");
+                typeLabel.setText("User Details");
                 break;
             default:
                 break;
@@ -206,10 +203,5 @@ public class createReport_activity extends AppCompatActivity{
         dialog = builder.create();
         dialog.show();
     }
-
-    // Inside CreateTutorialActivity.java
-
-// ... (other code)
-
 
 }

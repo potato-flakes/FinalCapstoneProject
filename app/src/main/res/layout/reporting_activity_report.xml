@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -42,18 +41,18 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                android:layout_gravity="top"
                 android:elevation="10dp"
                 android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:layout_gravity="top">
+                android:paddingEnd="20dp">
 
                 <!-- Back button -->
                 <ImageButton
                     android:id="@+id/backButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:elevation="11dp"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:elevation="11dp"
                     android:src="@drawable/ic_back" />
 
                 <!-- Notification icon -->
@@ -62,8 +61,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
-                    android:elevation="1dp"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:elevation="1dp"
                     android:src="@drawable/ic_notification" />
             </androidx.appcompat.widget.Toolbar>
 
@@ -73,12 +72,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="20dp"
-                android:paddingTop="40dp"
                 android:elevation="3dp"
-                android:gravity="center">
+                android:gravity="center"
+                android:paddingTop="40dp">
 
                 <TextView
-                    android:id="@+id/reportUserName"
+                    android:id="@+id/userName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="20dp"
@@ -143,6 +142,68 @@
 
     </LinearLayout>
 
+    <!-- Existing code ... -->
+
+    <!-- Add text views for filtering reports -->
+    <LinearLayout
+        android:id="@+id/filterButtonsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/mainContainer">
+
+        <TextView
+            android:id="@+id/allButton"
+            style="@style/AllTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:text="All"
+            android:textColor="#2196F3" />
+
+        <TextView
+            android:id="@+id/approvedButton"
+            style="@style/ApprovedTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:text="Approved"
+            android:textColor="#4CAF50" />
+
+        <TextView
+            android:id="@+id/declinedButton"
+            style="@style/DeclinedTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:text="Declined"
+            android:textColor="#E91E63" /> <!-- Semi-transparent text color -->
+
+        <TextView
+            android:id="@+id/investigationButton"
+            style="@style/OPTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:text="On Process"
+            android:textColor="#FFC107" />
+
+    </LinearLayout>
+
     <!-- RecyclerView for Reports -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -155,8 +216,121 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/mainContainer"
+        app:layout_constraintTop_toBottomOf="@id/filterButtonsLayout"
         app:layout_constraintVertical_bias="1.0" />
+
+    <LinearLayout
+        android:id="@+id/noReportsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/filterButtonsLayout">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:layout_marginTop="-50dp"
+            android:contentDescription="No Reports Image"
+            android:src="@drawable/ic_no_reports" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-100dp"
+            android:text="You haven't created any reports yet."
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/noApprovedReportsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/filterButtonsLayout">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:layout_marginTop="-50dp"
+            android:contentDescription="No Reports Image"
+            android:src="@drawable/ic_no_reports" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-100dp"
+            android:text="There is no approved reports yet."
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/noDeclinedReportsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/filterButtonsLayout">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:layout_marginTop="-50dp"
+            android:contentDescription="No Reports Image"
+            android:src="@drawable/ic_no_reports" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-100dp"
+            android:text="There is no declined reports yet."
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/noUnderInvestigationReportsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/filterButtonsLayout">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:layout_marginTop="-50dp"
+            android:contentDescription="No Reports Image"
+            android:src="@drawable/ic_no_reports" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-100dp"
+            android:text="There is no under investigation reports yet."
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
@@ -250,7 +424,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:backgroundTint="#4CAF50"
+            android:backgroundTint="@color/colorPrimary"
             android:contentDescription="@string/todo"
             android:elevation="8dp"
             android:src="@drawable/ic_create_report"

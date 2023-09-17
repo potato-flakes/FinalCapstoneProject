@@ -36,6 +36,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.system.finalcapstoneproject.R;
+import com.system.finalcapstoneproject.UrlConstants;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -258,7 +259,6 @@ public class EditReportStep3Fragment extends Fragment {
         descOfCrimeEditText = dialogView.findViewById(R.id.descOfCrimeEditText);
         nameTextView = dialogView.findViewById(R.id.nameTextView);
         sexTextView = dialogView.findViewById(R.id.sexTextView);
-        bdayTextView = dialogView.findViewById(R.id.bdayTextView);
         phoneTextView = dialogView.findViewById(R.id.phoneTextView);
         emailTextView = dialogView.findViewById(R.id.emailTextView);
         evidencesOfCrimeTextView = dialogView.findViewById(R.id.evidencesOfCrimeTextView);

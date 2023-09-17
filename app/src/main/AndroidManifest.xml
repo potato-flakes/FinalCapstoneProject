@@ -64,6 +64,11 @@
             android:theme="@style/Theme.ReportingContent" />
         <activity android:name=".reportingsystem.editReport_activity"
             android:theme="@style/Theme.ReportingContent" />
+        <activity
+            android:name=".CreateTutorial.TutorialActivity"
+            android:theme="@style/Theme.ReportingHome" />
+        <activity android:name=".CreateTutorial.CreateTutorialActivity"
+            android:theme="@style/Theme.ReportingContent" />
     </application>
 
 </manifest>

@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,7 +36,6 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -245,6 +246,15 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
+        // Find the RadioGroup
+        RadioGroup genderRadioGroup = findViewById(R.id.genderRadioGroup);
+
+        // Find the RadioButton for "Male"
+        RadioButton radioButtonMale = findViewById(R.id.radioButtonMale);
+
+        // Set "Male" as the default gender
+        radioButtonMale.setChecked(true);
+
         buttonSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -253,6 +263,18 @@ public class SignUpActivity extends AppCompatActivity {
                 lastname = String.valueOf(textInputEditTextLastname.getText());
                 email = String.valueOf(textInputEditTextEmail.getText());
                 password = String.valueOf(textInputEditTextPassword.getText());
+                // Initialize a variable to store the selected gender
+                String selectedGender = "";
+                // Find the selected RadioButton
+                int selectedRadioButtonId = genderRadioGroup.getCheckedRadioButtonId();
+                // Check which RadioButton is selected
+                if (selectedRadioButtonId == R.id.radioButtonMale) {
+                    selectedGender = "Male";
+                } else if (selectedRadioButtonId == R.id.radioButtonFemale) {
+                    selectedGender = "Female";
+                } else if (selectedRadioButtonId == R.id.radioButtonOther) {
+                    selectedGender = "Other";
+                }
                 progressBar.setVisibility(View.VISIBLE);
 
                 final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -261,6 +283,7 @@ public class SignUpActivity extends AppCompatActivity {
                 int user_id = random;
 
                 // Check if a user with this email address already exists
+                String finalSelectedGender = selectedGender;
                 firebaseAuth.fetchSignInMethodsForEmail(email).addOnCompleteListener(signInMethodsTask -> {
                     if (signInMethodsTask.isSuccessful()) {
                         if (signInMethodsTask.getResult() != null && signInMethodsTask.getResult().getSignInMethods() != null && signInMethodsTask.getResult().getSignInMethods().size() > 0) {
@@ -294,6 +317,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                                 postData.put("lastname", lastname);
                                                                 postData.put("email", email);
                                                                 postData.put("password", password);
+                                                                postData.put("sex", finalSelectedGender);
 
                                                                 Log.d("SignUpActivity", "buttonSignUp - Data to be passed: " + postData);
                                                             } catch (JSONException e) {
@@ -313,7 +337,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                                 }
 
                                                                 if (result.equals("Sign Up Success")) {
-                                                                   showVerificationDialog();
+                                                                    showVerificationDialog();
                                                                 } else {
                                                                     Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
                                                                 }
@@ -365,6 +389,7 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
     }
+
     // Function to resend the verification email
     private void resendVerificationEmail(String email) {
         final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();

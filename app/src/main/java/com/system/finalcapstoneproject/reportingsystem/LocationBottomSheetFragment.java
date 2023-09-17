@@ -86,7 +86,7 @@ public class LocationBottomSheetFragment extends BottomSheetDialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.reporting_fragment_location_bottom_sheet, container, false);
         mapView = view.findViewById(R.id.mapViews);
-        locationTextView = view.findViewById(R.id.locationTextView);
+        locationTextView = view.findViewById(R.id.TutorialDescriptionTextView);
         searchEditText = view.findViewById(R.id.searchEditText);
 
         setupAutoCompleteSuggestions();

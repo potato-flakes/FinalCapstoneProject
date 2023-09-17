@@ -37,4 +37,68 @@
         <item name="android:paddingEnd">0dp</item>
     </style>
 
+    <style name="AllTextView">
+        <!-- Background color when pressed -->
+        <item name="android:background">@drawable/button_background_all</item>
+        <!-- Rounded corners -->
+        <item name="android:radius">8dp</item>
+        <!-- Text size -->
+        <item name="android:textSize">16sp</item>
+        <!-- Text color -->
+        <item name="android:textColor">@color/white</item>
+        <!-- Padding -->
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+    </style>
+
+    <style name="ApprovedTextView">
+        <!-- Background color when pressed -->
+        <item name="android:background">@drawable/button_background_approved</item>
+        <!-- Rounded corners -->
+        <item name="android:radius">8dp</item>
+        <!-- Text size -->
+        <item name="android:textSize">16sp</item>
+        <!-- Text color -->
+        <item name="android:textColor">@color/white</item>
+        <!-- Padding -->
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+    </style>
+
+    <style name="DeclinedTextView">
+        <!-- Background color when pressed -->
+        <item name="android:background">@drawable/button_background_declined</item>
+        <!-- Rounded corners -->
+        <item name="android:radius">8dp</item>
+        <!-- Text size -->
+        <item name="android:textSize">16sp</item>
+        <!-- Text color -->
+        <item name="android:textColor">@color/white</item>
+        <!-- Padding -->
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+    </style>
+
+    <style name="OPTextView">
+        <!-- Background color when pressed -->
+        <item name="android:background">@drawable/button_background_under_investigation</item>
+        <!-- Rounded corners -->
+        <item name="android:radius">8dp</item>
+        <!-- Text size -->
+        <item name="android:textSize">16sp</item>
+        <!-- Text color -->
+        <item name="android:textColor">@color/white</item>
+        <!-- Padding -->
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+    </style>
+
 </resources>

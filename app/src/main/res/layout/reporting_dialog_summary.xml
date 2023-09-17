@@ -246,30 +246,6 @@
                 android:paddingStart="10dp"/>
         </TableRow>
 
-        <!-- Date of Birth -->
-        <TableRow android:layout_marginBottom="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppinsmedium"
-                android:gravity="start"
-                android:text="Date of Birth: "
-                android:textColor="@android:color/black"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/bdayTextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/poppinsmedium"
-                android:gravity="start"
-                android:textSize="12sp"
-                android:paddingStart="10dp"/>
-        </TableRow>
-
         <!-- Phone -->
         <TableRow android:layout_marginBottom="5dp">
 

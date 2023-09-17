@@ -2,6 +2,8 @@ package com.system.finalcapstoneproject.reportingsystem;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
@@ -37,6 +39,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.system.finalcapstoneproject.R;
+import com.system.finalcapstoneproject.UrlConstants;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -77,7 +80,6 @@ public class Step3Fragment extends Fragment {
     private EditText phoneEditText;
     private Button maleButton;
     private Button femaleButton;
-    private String selectedGender;
     private Button nextButton;
     private UserData userData;
     private RelativeLayout backButtonToF1;
@@ -118,7 +120,9 @@ public class Step3Fragment extends Fragment {
         emailEditText = view.findViewById(R.id.editTextEmail);
         phoneEditText = view.findViewById(R.id.editTextPhone);
         nextButton = view.findViewById(R.id.nextButton);
-        String userId = "9183797"; // Replace this with the actual user ID you want to fetch
+
+        String passed_user_id = userData.getUserId();
+        Log.e("HomeActivity", "retrieveUserDetails - User ID:" + passed_user_id);
 
         // Find the Yes and No buttons
         maleButton = view.findViewById(R.id.maleButton);
@@ -175,7 +179,7 @@ public class Step3Fragment extends Fragment {
         // Check if data has already been fetched using the flag in UserData
         if (!userData.isDataFetched()) {
             // Retrieve the user details from the server
-            new RetrieveUserDetailsTask().execute(GET_USER_DETAILS, userId);
+            new RetrieveUserDetailsTask().execute(GET_USER_DETAILS, passed_user_id);
             userData.setDataFetched(true);
         } else {
             // Set the user details in the EditText fields
@@ -256,7 +260,6 @@ public class Step3Fragment extends Fragment {
         descOfCrimeEditText = dialogView.findViewById(R.id.descOfCrimeEditText);
         nameTextView = dialogView.findViewById(R.id.nameTextView);
         sexTextView = dialogView.findViewById(R.id.sexTextView);
-        bdayTextView = dialogView.findViewById(R.id.bdayTextView);
         phoneTextView = dialogView.findViewById(R.id.phoneTextView);
         emailTextView = dialogView.findViewById(R.id.emailTextView);
         evidencesOfCrimeTextView = dialogView.findViewById(R.id.evidencesOfCrimeTextView);
@@ -351,7 +354,7 @@ public class Step3Fragment extends Fragment {
         btnSendReport.setEnabled(false);
         btnSendReport.setText("");
         // Retrieve user ID from the intent or wherever you store it
-        final String user_id = "9183797"; // Replace with the actual user ID
+        final String user_id = userData.getUserId(); // Replace with the actual user ID
         final String crime_type = userData.getCrimeType();
         final String crime_person = userData.getCrimePerson();
         final String crime_date = userData.getCrimeDate();

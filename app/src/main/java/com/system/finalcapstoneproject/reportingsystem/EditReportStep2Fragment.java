@@ -42,7 +42,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -64,12 +63,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputLayout;
 import com.squareup.picasso.Picasso;
@@ -83,8 +76,6 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -95,13 +86,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import pl.droidsonroids.gif.GifImageView;
 
@@ -219,8 +206,8 @@ public class EditReportStep2Fragment extends Fragment implements LocationSelecti
         mapView = view.findViewById(R.id.mainMapView);
         mapView.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
         viewMaps = view.findViewById(R.id.viewMapsButton);
-        locationTextView = view.findViewById(R.id.locationTextView);
-        dateTextView = view.findViewById(R.id.dateTextView);
+        locationTextView = view.findViewById(R.id.TutorialDescriptionTextView);
+        dateTextView = view.findViewById(R.id.TutorialCategoryTextView);
         iconImageView = view.findViewById(R.id.iconImageView);
         timeLabel = view.findViewById(R.id.timeLabel);
         hourEditText = view.findViewById(R.id.hourEditText);

@@ -20,8 +20,8 @@
             android:fontFamily="@font/poppinsbold"
             android:gravity="center"
             android:text="@string/signup"
-            android:textSize="30sp"
             android:textColor="@color/colorAccent"
+            android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -42,19 +42,19 @@
                 android:id="@+id/textInputLayoutFirstName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_marginRight="1dp"
+                android:layout_weight="1"
                 android:hint="@string/first_name">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/firstName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPersonName"
                     android:drawableStart="@drawable/ic_name"
                     android:drawableLeft="@drawable/ic_name"
                     android:drawablePadding="10dp"
                     android:fontFamily="@font/poppinsmedium"
+                    android:inputType="textPersonName"
                     tools:targetApi="jelly_bean" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -63,19 +63,19 @@
                 android:id="@+id/textInputLayoutLastName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_marginLeft="1dp"
+                android:layout_weight="1"
                 android:hint="@string/last_name">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/lastName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPersonName"
                     android:drawableStart="@drawable/ic_name"
                     android:drawableLeft="@drawable/ic_name"
                     android:drawablePadding="10dp"
                     android:fontFamily="@font/poppinsmedium"
+                    android:inputType="textPersonName"
                     tools:targetApi="jelly_bean" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -98,12 +98,12 @@
                 android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textEmailAddress"
-                android:hint="@string/email"
                 android:drawableStart="@drawable/ic_email"
                 android:drawableLeft="@drawable/ic_email"
                 android:drawablePadding="10dp"
                 android:fontFamily="@font/poppinsmedium"
+                android:hint="@string/email"
+                android:inputType="textEmailAddress"
                 tools:targetApi="jelly_bean" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -119,11 +119,11 @@
                 android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawablePadding="10dp"
                 android:drawableStart="@drawable/ic_password"
+                android:drawablePadding="10dp"
                 android:fontFamily="@font/poppinsmedium"
                 android:hint="Password"
-                android:inputType="textPassword"/>
+                android:inputType="textPassword" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -139,11 +139,79 @@
                 android:id="@+id/confirmPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawablePadding="10dp"
                 android:drawableStart="@drawable/ic_confirm"
+                android:drawablePadding="10dp"
                 android:fontFamily="@font/poppinsmedium"
                 android:hint="Confirm Password"
-                android:inputType="textPassword"/>
+                android:inputType="textPassword" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Include the RadioGroup -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutGender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutConfirmPassword">
+
+            <RadioGroup
+                android:id="@+id/genderRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/poppinsmedium"
+                    android:text="Sex:" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonMale"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:button="@drawable/reporting_crimetype_radio_button"
+                    android:fontFamily="@font/poppinsmedium"
+                    android:gravity="center_horizontal"
+                    android:paddingStart="4dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:text="Male" />
+
+
+                <RadioButton
+                    android:id="@+id/radioButtonFemale"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:button="@drawable/reporting_crimetype_radio_button"
+                    android:fontFamily="@font/poppinsmedium"
+                    android:paddingStart="4dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:text="Female" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonOther"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:button="@drawable/reporting_crimetype_radio_button"
+                    android:fontFamily="@font/poppinsmedium"
+                    android:gravity="center_horizontal"
+                    android:paddingStart="4dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:text="Other"
+                    android:textAlignment="center" />
+
+            </RadioGroup>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -155,19 +223,19 @@
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutConfirmPassword" />
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutGender" />
 
         <Button
             android:id="@+id/buttonSignUp"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
             android:layout_marginTop="10dp"
+            android:layout_marginRight="30dp"
             android:text="@string/signup"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
             app:layout_constraintTop_toBottomOf="@+id/progress" />
 
 

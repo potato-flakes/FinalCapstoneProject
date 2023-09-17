@@ -2,8 +2,11 @@ package com.system.finalcapstoneproject.reportingsystem;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
@@ -13,11 +16,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.system.finalcapstoneproject.R;
+import com.system.finalcapstoneproject.UrlConstants;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,9 +38,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class ReportActivity extends AppCompatActivity {
     private LinearLayout chat_button;
+    private LinearLayout noReportsLayout;
+    private LinearLayout noApprovedReportsLayout;
+    private LinearLayout noDeclinedReportsLayout;
+    private LinearLayout noUnderInvestigationReportsLayout;
     private RecyclerView recyclerView;
     private ReportAdapter reportAdapter;
     private List<Report> reportList;
@@ -43,6 +53,12 @@ public class ReportActivity extends AppCompatActivity {
     private Report report;
     private String GET_REPORTS = UrlConstants.GET_REPORTS;
     private String DELETE_REPORTS = UrlConstants.DELETE_REPORTS;
+    private String GET_APPROVED_REPORTS = UrlConstants.GET_APPROVED_REPORTS;
+    private TextView allButton;
+    private TextView approvedButton;
+    private TextView declinedButton;
+    private TextView onProcessButton;
+    private String user_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +68,87 @@ public class ReportActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         reportList = new ArrayList<>();
-        reportAdapter = new ReportAdapter(reportList);
+        reportAdapter = new ReportAdapter(this, reportList);
         recyclerView.setAdapter(reportAdapter);
-        reportUserName = findViewById(R.id.reportUserName);
+        reportUserName = findViewById(R.id.userName);
         chat_button = findViewById(R.id.chat_button);
+        allButton = findViewById(R.id.allButton);
+        approvedButton = findViewById(R.id.approvedButton);
+        declinedButton = findViewById(R.id.declinedButton);
+        onProcessButton = findViewById(R.id.investigationButton);
+        noReportsLayout = findViewById(R.id.noReportsLayout);
+        noApprovedReportsLayout = findViewById(R.id.noApprovedReportsLayout);
+        noDeclinedReportsLayout = findViewById(R.id.noDeclinedReportsLayout);
+        noUnderInvestigationReportsLayout = findViewById(R.id.noUnderInvestigationReportsLayout);
+        SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
+        user_id = sharedPreferences.getString("user_id", "");
+        Log.e("HomeActivity", "retrieveUserDetails - User ID:" + user_id);
+
+        allButton.setBackgroundResource(R.drawable.button_background_all_filled);
+        allButton.setTextColor(ContextCompat.getColor(allButton.getContext(), R.color.white));
+        approvedButton.setBackgroundResource(R.drawable.button_background_approved);
+        declinedButton.setBackgroundResource(R.drawable.button_background_declined);
+        onProcessButton.setBackgroundResource(R.drawable.button_background_under_investigation);
+
+        allButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchAllReports(user_id);
+                allButton.setBackgroundResource(R.drawable.button_background_all_filled);
+                allButton.setTextColor(ContextCompat.getColor(allButton.getContext(), R.color.white));
+                approvedButton.setBackgroundResource(R.drawable.button_background_approved);
+                approvedButton.setTextColor(Color.parseColor("#4CAF50"));
+                declinedButton.setBackgroundResource(R.drawable.button_background_declined);
+                declinedButton.setTextColor(Color.parseColor("#E91E63"));
+                onProcessButton.setBackgroundResource(R.drawable.button_background_under_investigation);
+                onProcessButton.setTextColor(Color.parseColor("#FFC107"));
+            }
+        });
+
+        approvedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchApprovedReports(user_id);
+                allButton.setBackgroundResource(R.drawable.button_background_all);
+                allButton.setTextColor(Color.parseColor("#2196F3"));
+                approvedButton.setBackgroundResource(R.drawable.button_background_approved_filled);
+                approvedButton.setTextColor(ContextCompat.getColor(approvedButton.getContext(), R.color.white));
+                declinedButton.setBackgroundResource(R.drawable.button_background_declined);
+                declinedButton.setTextColor(Color.parseColor("#E91E63"));
+                onProcessButton.setBackgroundResource(R.drawable.button_background_under_investigation);
+                onProcessButton.setTextColor(Color.parseColor("#FFC107"));
+            }
+        });
+
+        declinedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchDeclinedReports(user_id);
+                allButton.setBackgroundResource(R.drawable.button_background_all);
+                allButton.setTextColor(Color.parseColor("#2196F3")); // Blue color
+                approvedButton.setBackgroundResource(R.drawable.button_background_approved);
+                approvedButton.setTextColor(Color.parseColor("#4CAF50")); // Blue color
+                declinedButton.setBackgroundResource(R.drawable.button_background_declined_filled);
+                declinedButton.setTextColor(ContextCompat.getColor(declinedButton.getContext(), R.color.white));
+                onProcessButton.setBackgroundResource(R.drawable.button_background_under_investigation);
+                onProcessButton.setTextColor(Color.parseColor("#FFC107"));
+            }
+        });
+
+        onProcessButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchOnProcessReports(user_id);
+                allButton.setBackgroundResource(R.drawable.button_background_all);
+                allButton.setTextColor(Color.parseColor("#2196F3"));
+                approvedButton.setBackgroundResource(R.drawable.button_background_approved);
+                approvedButton.setTextColor(Color.parseColor("#4CAF50"));
+                declinedButton.setBackgroundResource(R.drawable.button_background_declined);
+                declinedButton.setTextColor(Color.parseColor("#E91E63"));
+                onProcessButton.setBackgroundResource(R.drawable.button_background_under_investigation_filled);
+                onProcessButton.setTextColor(ContextCompat.getColor(onProcessButton.getContext(), R.color.white));
+            }
+        });
 
         // Set item click listener
         reportAdapter.setOnItemClickListener(new ReportAdapter.OnItemClickListener() {
@@ -150,6 +243,10 @@ public class ReportActivity extends AppCompatActivity {
                 Log.d("Button", "Create Report Button was clicked"); // Log the image URL
             }
         });
+
+        String firstname = sharedPreferences.getString("firstname", "");
+        Log.e("HomeActivity", "retrieveUserDetails - Firstname:" + firstname);
+        reportUserName.setText(Html.fromHtml("Hello, " + firstname + "!"));
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -228,13 +325,20 @@ public class ReportActivity extends AppCompatActivity {
         return -1; // Report not found
     }
 
-    private void fetchReports(final String userId) {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetchReports(user_id, "");
+    }
+
+    private void fetchReports(final String userId, final String status) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String response = "";
                 try {
-                    URL url = new URL(GET_REPORTS + userId);
+                    // Append the status parameter to the URL
+                    URL url = new URL(GET_REPORTS + userId + "&status=" + status);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
 
@@ -273,62 +377,116 @@ public class ReportActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            parseReportResponse(jsonResponse);
+                            parseReportResponse(jsonResponse, status);
                         }
                     });
                 } catch (IOException e) {
-                    Log.e("ReportActivty", "fetchReports - Response String: " + response); // Use the declared response variable
+                    Log.e("ReportActivty", "fetchReports - Response String: " + response);
                     e.printStackTrace();
                 }
             }
         }).start();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Retrieve user ID from the intent or wherever you store it
-        String userId = "9183797"; // Replace with the actual user ID
-
-        fetchReports(userId);
-    }
-
-    private void parseReportResponse(String response) {
+    private void parseReportResponse(String response, String passed_status) {
         // Clear the existing report list before parsing the new response
         reportList.clear();
-
+        Log.e("", "" + passed_status);
         try {
             JSONArray jsonArray = new JSONArray(response);
+                noReportsLayout.setVisibility(View.GONE);
+                noApprovedReportsLayout.setVisibility(View.GONE);
+                noDeclinedReportsLayout.setVisibility(View.GONE);
+                noUnderInvestigationReportsLayout.setVisibility(View.GONE);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    String report_id = jsonObject.getString("report_id"); // Correctly extract the report_id
+                    String user_id = jsonObject.getString("user_id"); // Use "id" instead of "reportId"
+                    String crime_type = jsonObject.getString("crime_type"); // Use "id" instead of "reportId"
+                    String crime_person = jsonObject.getString("crime_person"); // Use "id" instead of "reportId"
+                    String crime_location = jsonObject.getString("crime_location");
+                    String crime_date = jsonObject.getString("crime_date");
+                    String crime_description = jsonObject.getString("crime_description");
+                    String crime_time = jsonObject.getString("crime_time");
+                    String crime_barangay = jsonObject.getString("crime_barangay");
+                    String crime_user_name = jsonObject.getString("crime_user_name");
+                    String crime_user_sex = jsonObject.getString("crime_user_sex");
+                    String crime_user_phone = jsonObject.getString("crime_user_phone");
+                    String crime_user_email = jsonObject.getString("crime_user_email");
+                    String report_date = jsonObject.getString("report_date");
+                    String isUseCurrentLocation = jsonObject.getString("isUseCurrentLocation");
+                    String isIdentified = jsonObject.getString("isIdentified");
+                    String status = jsonObject.getString("status");
 
-                String report_id = jsonObject.getString("report_id"); // Correctly extract the report_id
-                String user_id = jsonObject.getString("user_id"); // Use "id" instead of "reportId"
-                String firstname = jsonObject.getString("firstname"); // Use "id" instead of "reportId"
-                String lastname = jsonObject.getString("lastname"); // Use "id" instead of "reportId"
-                String description = jsonObject.getString("crime_type");
-                String location = jsonObject.getString("crime_location");
-                String date = jsonObject.getString("crime_date");
-                String time = jsonObject.getString("crime_time");
 
-                Report report = new Report(report_id, user_id, firstname, lastname, description, location, date, time);
-                String lastName = "<b>" + report.getLastname() + "</b>";
-                reportUserName.setText(Html.fromHtml("Hello, " + lastName + "!"));
+                    Report report = new Report(report_id, user_id, crime_type, crime_person, crime_location, crime_date, crime_description, crime_time, crime_barangay, crime_user_name,
+                            crime_user_sex, crime_user_phone, crime_user_email, report_date, isUseCurrentLocation, isIdentified, status);
 
-                reportList.add(report);
-            }
+                    reportList.add(report);
+                }
 
-            // Reverse the order of the reportList to display newest at the top
-            Collections.reverse(reportList);
+                // Reverse the order of the reportList to display newest at the top
+                Collections.reverse(reportList);
 
-            reportAdapter.notifyDataSetChanged();
+                reportAdapter.notifyDataSetChanged();
         } catch (JSONException e) {
-            Log.e("ReportActivty", "parseReportResponse - Response String: " + response); // Use the declared response variable
+            Log.e("ReportActivty", "parseReportResponse - Response String: " + response);
+            if ("".equals(passed_status)) { // Use .equals() for string comparison
+                noReportsLayout.setVisibility(View.VISIBLE);
+                noApprovedReportsLayout.setVisibility(View.GONE);
+                noDeclinedReportsLayout.setVisibility(View.GONE);
+                noUnderInvestigationReportsLayout.setVisibility(View.GONE);
+            } else if ("Approved".equals(passed_status)) {
+                noApprovedReportsLayout.setVisibility(View.VISIBLE);
+                noReportsLayout.setVisibility(View.GONE);
+                noDeclinedReportsLayout.setVisibility(View.GONE);
+                noUnderInvestigationReportsLayout.setVisibility(View.GONE);
+            } else if ("Declined".equals(passed_status)) {
+                noDeclinedReportsLayout.setVisibility(View.VISIBLE);
+                noReportsLayout.setVisibility(View.GONE);
+                noApprovedReportsLayout.setVisibility(View.GONE);
+                noUnderInvestigationReportsLayout.setVisibility(View.GONE);
+            } else if ("OnProcess".equals(passed_status)) {
+                noUnderInvestigationReportsLayout.setVisibility(View.VISIBLE);
+                noReportsLayout.setVisibility(View.GONE);
+                noApprovedReportsLayout.setVisibility(View.GONE);
+                noDeclinedReportsLayout.setVisibility(View.GONE);
+            }
             e.printStackTrace();
         }
     }
 
+    private void fetchAllReports(String userId) {
+        reportList.clear();
+        // Implement code to fetch all reports for the user
+        // Update the reportList and notify the adapter
+        Log.e("ReportActivty", "fetchAllReports - User ID: " + userId);
+        fetchReports(userId, "");
+    }
+
+    private void fetchApprovedReports(String userId) {
+        reportList.clear();
+        // Implement code to fetch approved reports for the user
+        // Update the reportList and notify the adapter
+        Log.e("ReportActivty", "fetchApprovedReports - User ID: " + userId);
+        fetchReports(userId, "Approved");
+    }
+
+    private void fetchDeclinedReports(String userId) {
+        reportList.clear();
+        // Implement code to fetch declined reports for the user
+        // Update the reportList and notify the adapter
+        Log.e("ReportActivty", "fetchDeclinedReports - User ID: " + userId);
+        fetchReports(userId, "Declined");
+    }
+
+    private void fetchOnProcessReports(String userId) {
+        reportList.clear();
+        // Implement code to fetch reports that are on process for the user
+        // Update the reportList and notify the adapter
+        Log.e("ReportActivty", "fetchOnProcessReports - User ID: " + userId);
+        fetchReports(userId, "OnProcess");
+    }
 
 }

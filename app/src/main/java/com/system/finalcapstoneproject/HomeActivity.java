@@ -43,6 +43,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.system.finalcapstoneproject.Adaptor.CategoryAdaptor;
+import com.system.finalcapstoneproject.CreateTutorial.CreateTutorialActivity;
+import com.system.finalcapstoneproject.CreateTutorial.TutorialActivity;
 import com.system.finalcapstoneproject.Domain.CategoryDomain;
 import com.system.finalcapstoneproject.reportingsystem.ReportActivity;
 
@@ -83,6 +85,7 @@ public class HomeActivity extends AppCompatActivity {
     private LinearLayout popup_button;
     private Button galleryBtn;
     private Button cameraBtn;
+    private Button createTutorialBtn;
     private LinearLayout parent;
     private Button logoutButton;
     private static final String USER_SESSION = "MyAppPrefs";
@@ -100,6 +103,7 @@ public class HomeActivity extends AppCompatActivity {
         galleryBtn = findViewById(R.id.gallery);
         popup_button = findViewById(R.id.popup_button);
         cameraBtn = findViewById(R.id.camera);
+        createTutorialBtn = findViewById(R.id.createTutorialButton);
         parent = findViewById(R.id.mainLinearLayout);
         user_firstname = findViewById(R.id.firstname);
 
@@ -116,21 +120,23 @@ public class HomeActivity extends AppCompatActivity {
             Log.e("HomeActivity", "Photo: " + acct.getId());
         }
 
-        galleryBtn.setBackgroundResource(R.drawable.home_button_border);
         scannerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 galleryBtn.setVisibility(View.VISIBLE);
                 cameraBtn.setVisibility(View.VISIBLE);
+                createTutorialBtn.setVisibility(View.VISIBLE);
                 scannerBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (galleryBtn.getVisibility() == View.VISIBLE && cameraBtn.getVisibility() == View.VISIBLE) {
                             galleryBtn.setVisibility(View.GONE);
                             cameraBtn.setVisibility(View.GONE);
+                            createTutorialBtn.setVisibility(View.GONE);
                         } else {
                             galleryBtn.setVisibility(View.VISIBLE);
                             cameraBtn.setVisibility(View.VISIBLE);
+                            createTutorialBtn.setVisibility(View.VISIBLE);
                         }
                     }
                 });
@@ -140,6 +146,7 @@ public class HomeActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         galleryBtn.setVisibility(View.GONE);
                         cameraBtn.setVisibility(View.GONE);
+                        createTutorialBtn.setVisibility(View.GONE);
                     }
                 });
 
@@ -189,6 +196,14 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(HomeActivity.this, ReportActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        createTutorialBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, TutorialActivity.class);
                 startActivity(intent);
             }
         });
@@ -305,10 +320,14 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(new Intent(HomeActivity.this, LoginActivity.class));
             }
         });
-        SharedPreferences sharedPreferences = getSharedPreferences("userId", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();
         editor.apply();
+        // Cancel existing notifications (to prevent outdated notifications)
+        cancelExistingNotifications();
+        // User has turned off notifications, cancel the last notification
+        cancelLastNotification();
     }
 
     // Example logout process
@@ -455,7 +474,32 @@ public class HomeActivity extends AppCompatActivity {
                     try {
                         Log.e("HomeActivity", "retrieveUserDetails - Response:" + response);
                         JSONObject jsonObject = new JSONObject(response);
+                        String is_admin = jsonObject.getString("is_admin");
                         String firstname = jsonObject.getString("firstname");
+                        String lastname = jsonObject.getString("lastname");
+                        String email = jsonObject.getString("email");
+                        String joined = jsonObject.getString("joined");
+                        String sex = jsonObject.getString("gender");
+                        String phone = jsonObject.getString("phone");
+                        int profile_pic = jsonObject.getInt("tmp");
+                        int ban_duration = jsonObject.getInt("ban_duration");
+                        String ban_reason = jsonObject.getString("ban_reason");
+
+                        SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("is_admin", is_admin);
+                        editor.putString("firstname", firstname);
+                        editor.putString("lastname", lastname);
+                        editor.putString("email", email);
+                        editor.putString("joined", joined);
+                        editor.putString("sex", sex);
+                        editor.putString("phone", phone);
+                        editor.putString("sex", sex);
+                        editor.putInt("profile_pic", profile_pic);
+                        editor.putInt("ban_duration", ban_duration);
+                        editor.putString("ban_reason", ban_reason);
+                        editor.apply();
+
                         user_firstname.setText(firstname);
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -470,8 +514,6 @@ public class HomeActivity extends AppCompatActivity {
     int newInterval;
 
     private void showNotification() {
-        // ...
-
         SharedPreferences sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
         newInterval = sharedPreferences.getInt("notification_interval", 1); // Default to 1 if not found
 
@@ -480,8 +522,6 @@ public class HomeActivity extends AppCompatActivity {
 
         // Schedule the notification to repeat at the new interval
         scheduleNotification(newInterval);
-
-        // ...
     }
 
     @Override

@@ -123,7 +123,7 @@ public class ProfileActivity extends AppCompatActivity {
                         JSONObject jsonObject = new JSONObject(response);
                         String firstname = jsonObject.getString("firstname");
                         String lastname = jsonObject.getString("lastname");
-                        String user_sex = jsonObject.getString("sex");
+                        String user_sex = jsonObject.getString("gender");
                         String email = jsonObject.getString("email");
                         String password = jsonObject.getString("password");
 
