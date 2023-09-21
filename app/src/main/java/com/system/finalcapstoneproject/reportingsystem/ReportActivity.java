@@ -12,7 +12,10 @@ import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.system.finalcapstoneproject.ProfileActivity;
 import com.system.finalcapstoneproject.R;
 import com.system.finalcapstoneproject.UrlConstants;
 
@@ -41,7 +45,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class ReportActivity extends AppCompatActivity {
-    private LinearLayout chat_button;
+    private RelativeLayout chat_button;
+    private RelativeLayout profile_button;
     private LinearLayout noReportsLayout;
     private LinearLayout noApprovedReportsLayout;
     private LinearLayout noDeclinedReportsLayout;
@@ -53,13 +58,13 @@ public class ReportActivity extends AppCompatActivity {
     private Report report;
     private String GET_REPORTS = UrlConstants.GET_REPORTS;
     private String DELETE_REPORTS = UrlConstants.DELETE_REPORTS;
-    private String GET_APPROVED_REPORTS = UrlConstants.GET_APPROVED_REPORTS;
     private TextView allButton;
     private TextView approvedButton;
     private TextView declinedButton;
     private TextView onProcessButton;
     private String user_id;
-
+    private ImageButton backButton;
+    private NotificationWebSocketClient notificationWebSocketClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +77,7 @@ public class ReportActivity extends AppCompatActivity {
         recyclerView.setAdapter(reportAdapter);
         reportUserName = findViewById(R.id.userName);
         chat_button = findViewById(R.id.chat_button);
+        profile_button = findViewById(R.id.profile_button);
         allButton = findViewById(R.id.allButton);
         approvedButton = findViewById(R.id.approvedButton);
         declinedButton = findViewById(R.id.declinedButton);
@@ -80,6 +86,8 @@ public class ReportActivity extends AppCompatActivity {
         noApprovedReportsLayout = findViewById(R.id.noApprovedReportsLayout);
         noDeclinedReportsLayout = findViewById(R.id.noDeclinedReportsLayout);
         noUnderInvestigationReportsLayout = findViewById(R.id.noUnderInvestigationReportsLayout);
+        backButton = findViewById(R.id.backButton);
+
         SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
         user_id = sharedPreferences.getString("user_id", "");
         Log.e("HomeActivity", "retrieveUserDetails - User ID:" + user_id);
@@ -89,6 +97,46 @@ public class ReportActivity extends AppCompatActivity {
         approvedButton.setBackgroundResource(R.drawable.button_background_approved);
         declinedButton.setBackgroundResource(R.drawable.button_background_declined);
         onProcessButton.setBackgroundResource(R.drawable.button_background_under_investigation);
+
+        notificationWebSocketClient = new NotificationWebSocketClient(this);
+
+        notificationWebSocketClient.setNotificationListener(new NotificationWebSocketClient.NotificationListener() {
+            @Override
+            public void onNotificationReceived(String notificationText) {
+
+                try {
+                    JSONObject notificationJson = new JSONObject(notificationText);
+                    String messageType = notificationJson.getString("type");
+                    Log.e("HomeActivity", "retrieveUserDetails - notificationJson:" + notificationJson);
+                    // Check if the received message is a notification
+                    if ("userNotification".equals(messageType)) {
+                        int newMessagesCount = notificationJson.getInt("newUserMessageCount");
+
+                        // Update the notificationBadge with the newMessagesCount
+                        updateNotificationBadge(newMessagesCount);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeChatNotificationSocket();
+                finish();
+            }
+        });
+
+        profile_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeChatNotificationSocket();
+                Intent intent = new Intent(ReportActivity.this, ProfileActivity.class);
+                startActivity(intent);
+            }
+        });
 
         allButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -163,6 +211,7 @@ public class ReportActivity extends AppCompatActivity {
         chat_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                closeChatNotificationSocket();
                 // Open the MainActivity to create a new report
                 Intent intent = new Intent(ReportActivity.this, ChatActivity.class);
                 startActivity(intent);
@@ -248,6 +297,15 @@ public class ReportActivity extends AppCompatActivity {
         Log.e("HomeActivity", "retrieveUserDetails - Firstname:" + firstname);
         reportUserName.setText(Html.fromHtml("Hello, " + firstname + "!"));
     }
+
+    private void updateNotificationBadge(int newMessagesCount) {
+        // Assuming you have a reference to the notificationBadge TextView
+        TextView notificationBadge = findViewById(R.id.notification_badge);
+
+        // Update the notificationBadge with the newMessagesCount
+        notificationBadge.setText(String.valueOf(newMessagesCount));
+    }
+
 
     @SuppressLint("StaticFieldLeak")
     private void deleteReportFromDatabase(final String report_id) {
@@ -488,5 +546,16 @@ public class ReportActivity extends AppCompatActivity {
         Log.e("ReportActivty", "fetchOnProcessReports - User ID: " + userId);
         fetchReports(userId, "OnProcess");
     }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        closeChatNotificationSocket();
+    }
 
+    private void closeChatNotificationSocket() {
+        // Close the notificationWebSocketClient when the activity is destroyed
+        if (notificationWebSocketClient != null) {
+            notificationWebSocketClient.close();
+        }
+    }
 }

@@ -53,7 +53,7 @@
                     android:layout_height="wrap_content"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:elevation="11dp"
-                    android:src="@drawable/ic_back" />
+                    android:src="@drawable/ic_back_left_arrow" />
 
                 <!-- Notification icon -->
                 <ImageButton
@@ -162,10 +162,23 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="2dp"
             android:layout_marginEnd="2dp"
-            android:paddingTop="15dp"
-            android:paddingBottom="15dp"
+            android:paddingTop="13dp"
+            android:paddingBottom="13dp"
+            android:textSize="13sp"
             android:text="All"
             android:textColor="#2196F3" />
+
+        <TextView
+            android:id="@+id/investigationButton"
+            style="@style/OPTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:paddingTop="13dp"
+            android:paddingBottom="13dp"
+            android:text="On Process"
+            android:textSize="13sp"
+            android:textColor="#FFC107" />
 
         <TextView
             android:id="@+id/approvedButton"
@@ -174,8 +187,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="2dp"
             android:layout_marginEnd="2dp"
-            android:paddingTop="15dp"
-            android:paddingBottom="15dp"
+            android:paddingTop="13dp"
+            android:paddingBottom="13dp"
+            android:textSize="13sp"
             android:text="Approved"
             android:textColor="#4CAF50" />
 
@@ -186,21 +200,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="2dp"
             android:layout_marginEnd="2dp"
-            android:paddingTop="15dp"
-            android:paddingBottom="15dp"
+            android:paddingTop="13dp"
+            android:paddingBottom="13dp"
+            android:textSize="13sp"
             android:text="Declined"
             android:textColor="#E91E63" /> <!-- Semi-transparent text color -->
-
-        <TextView
-            android:id="@+id/investigationButton"
-            style="@style/OPTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:paddingTop="15dp"
-            android:paddingBottom="15dp"
-            android:text="On Process"
-            android:textColor="#FFC107" />
 
     </LinearLayout>
 
@@ -209,15 +213,15 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="-40dp"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        app:layout_constraintBottom_toTopOf="@id/coordinatorLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/filterButtonsLayout"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintBottom_toBottomOf="@id/parent"
+        app:layout_constraintVertical_bias="1.0"
+        android:layout_marginBottom="50dp"/>
 
     <LinearLayout
         android:id="@+id/noReportsLayout"
@@ -242,7 +246,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="-100dp"
-            android:text="You haven't created any reports yet."
+            android:text="You haven't created any reports."
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -270,7 +274,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="-100dp"
-            android:text="There is no approved reports yet."
+            android:text="There is no approved reports."
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -298,7 +302,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="-100dp"
-            android:text="There is no declined reports yet."
+            android:text="There is no declined reports."
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -326,7 +330,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="-100dp"
-            android:text="There is no under investigation reports yet."
+            android:text="There's no under investigation reports."
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -335,9 +339,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_marginBottom="0dp"
-        android:elevation="10dp"
+        android:layout_height="150dp"
         app:layout_constraintBottom_toBottomOf="@id/parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -347,7 +349,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:backgroundTint="#f6f6f6"
             app:fabCradleMargin="8dp"
             app:fabCradleRoundedCornerRadius="50dp"
             app:fabCradleVerticalOffset="6dp">
@@ -360,12 +361,13 @@
                 android:baselineAligned="false"
                 android:orientation="horizontal">
 
-                <LinearLayout
+                <RelativeLayout
                     android:id="@+id/chat_button"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="60dp"
                     android:layout_weight="0.2"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:gravity="center">
 
                     <ImageView
                         android:id="@+id/imageView1"
@@ -376,14 +378,32 @@
                         app:srcCompat="@drawable/ic_chat" />
 
                     <TextView
+                        android:id="@+id/notification_badge"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginTop="-10dp"
+                        android:layout_marginEnd="30dp"
+                        android:background="@drawable/notification_badge_background"
+                        android:gravity="center"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:text="0"
+                        android:visibility="visible" />
+
+                    <TextView
                         android:id="@+id/textView1"
+                        android:layout_below="@id/imageView1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Inbox"
                         android:textAlignment="center"
                         android:textColor="#676767"
                         android:textSize="12sp" />
-                </LinearLayout>
+                </RelativeLayout>
+
+
 
                 <LinearLayout
                     android:id="@+id/middle"
@@ -393,29 +413,32 @@
                     android:orientation="vertical"
                     android:visibility="visible"></LinearLayout>
 
-                <LinearLayout
+                <RelativeLayout
                     android:id="@+id/profile_button"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="60dp"
                     android:layout_weight="0.2"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:gravity="center">
 
                     <ImageView
-                        android:id="@+id/imageView4"
+                        android:id="@+id/imageView2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:contentDescription="TODO"
                         app:srcCompat="@drawable/ic_profile" />
 
                     <TextView
-                        android:id="@+id/textView4"
+                        android:id="@+id/textView2"
+                        android:layout_below="@id/imageView2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Profile"
                         android:textAlignment="center"
                         android:textColor="#676767"
                         android:textSize="12sp" />
-                </LinearLayout>
+                </RelativeLayout>
             </LinearLayout>
         </com.google.android.material.bottomappbar.BottomAppBar>
 

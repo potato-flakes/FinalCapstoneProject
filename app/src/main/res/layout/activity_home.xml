@@ -133,18 +133,6 @@
                     android:layout_marginRight="40dp"
                     app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
-                <TextView
-                    android:id="@+id/textView12"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginTop="16dp"
-                    android:fontFamily="@font/poppinsmedium"
-                    android:text="Did you know?"
-                    android:textColor="#5A5A5A"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/recyclerView" />
-
                 <LinearLayout
                     android:id="@+id/info_container"
                     android:layout_width="match_parent"
@@ -152,17 +140,31 @@
                     android:layout_marginTop="16dp"
                     android:background="@drawable/banner2"
                     android:orientation="vertical"
-                    app:layout_constraintTop_toBottomOf="@id/textView12">
+                    app:layout_constraintTop_toBottomOf="@id/recyclerView"
+                    tools:layout_editor_absoluteX="0dp">
+
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="8dp"
                         android:layout_marginEnd="16dp"
                         android:background="@drawable/banner3"
                         android:orientation="vertical"
                         app:layout_constraintTop_toBottomOf="@id/info_container">
+
+                        <TextView
+                            android:id="@+id/textView12"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/poppinsmedium"
+                            android:text="Did you know?"
+                            android:textColor="#5A5A5A"
+                            android:padding="5dp"
+                            app:layout_constraintStart_toStartOf="parent" />
 
                         <LinearLayout
                             android:id="@+id/tipContainer"
@@ -176,8 +178,8 @@
 
                             <androidx.cardview.widget.CardView
                                 android:id="@+id/cardView"
-                                android:layout_width="120dp"
-                                android:layout_height="90dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="150dp"
                                 app:cardCornerRadius="8dp">
 
                                 <ImageView
@@ -187,32 +189,17 @@
                                     android:adjustViewBounds="true"
                                     android:scaleType="centerCrop" />
                             </androidx.cardview.widget.CardView>
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:id="@+id/tipName"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:paddingLeft="10dp"
-                                    android:paddingTop="10dp"
-                                    android:textSize="15sp"
-                                    app:layout_constraintStart_toEndOf="@+id/tipImage"
-                                    tools:text="Tip Name" />
-
-                                <TextView
-                                    android:id="@+id/tipMessage"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:padding="10dp"
-                                    android:textSize="10sp"
-                                    app:layout_constraintStart_toEndOf="@+id/tipImage"
-                                    tools:text="Tip Message" />
-                            </LinearLayout>
                         </LinearLayout>
+                        <TextView
+                            android:id="@+id/tipName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="10dp"
+                            android:paddingTop="10dp"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/poppinsmedium"
+                            tools:text="Tip Name"
+                            android:textStyle="bold"/>
 
                         <TextView
                             android:id="@+id/tipDescription"
@@ -220,8 +207,11 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="10dp"
                             android:padding="10dp"
-                            android:textSize="15sp"
-                            tools:text="Tip Name" />
+                            android:textSize="12sp"
+                            android:fontFamily="@font/poppinsmedium"
+                            android:text="Tip Name"
+                            android:textAlignment="viewStart" />
+
                     </LinearLayout>
 
                     <LinearLayout
@@ -286,8 +276,8 @@
                         android:layout_height="wrap_content"
                         android:text="Home"
                         android:textAlignment="center"
-                        android:textColor="#676767"
-                        android:textSize="12sp" />
+                        android:textColor="#4CAF50"
+                        android:textSize="10sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -310,7 +300,7 @@
                         android:text="Pop-Ups"
                         android:textAlignment="center"
                         android:textColor="#676767"
-                        android:textSize="12sp" />
+                        android:textSize="10sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -333,7 +323,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        app:srcCompat="@drawable/ic_report" />
+                        app:srcCompat="@drawable/ic_report_bottom_nav" />
 
                     <TextView
                         android:id="@+id/textView3"
@@ -342,7 +332,7 @@
                         android:text="Citizen Report"
                         android:textAlignment="center"
                         android:textColor="#676767"
-                        android:textSize="12sp" />
+                        android:textSize="10sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -366,7 +356,7 @@
                         android:text="Profile"
                         android:textAlignment="center"
                         android:textColor="#676767"
-                        android:textSize="12sp" />
+                        android:textSize="10sp" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.bottomappbar.BottomAppBar>
@@ -392,7 +382,8 @@
                 android:paddingLeft="15dp"
                 android:text="Scan using Camera"
                 android:textColor="@color/colorAccent"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:textSize="12sp"/>
 
             <Button
                 android:id="@+id/gallery"
@@ -408,7 +399,8 @@
                 android:paddingLeft="15dp"
                 android:text="Import from Gallery"
                 android:textColor="@color/colorAccent"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:textSize="12sp"/>
 
             <Button
                 android:id="@+id/createTutorialButton"
@@ -424,7 +416,8 @@
                 android:paddingLeft="15dp"
                 android:text="Create Tutorial"
                 android:textColor="@color/colorAccent"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:textSize="12sp"/>
         </RelativeLayout>
 
 

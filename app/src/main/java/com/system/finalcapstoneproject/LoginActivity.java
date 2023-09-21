@@ -31,6 +31,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.system.finalcapstoneproject.AdminScannerActivity.AdminQRScanActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,6 +44,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputLayout textInputLayoutPassword, textInputLayoutEmail;
     private TextInputEditText textInputEditTextEmail, textInputEditTextPassword;
     private Button buttonLogin;
+    private Button btnScan;
     private TextView textViewSignUp;
     private ProgressBar progressBar;
     private boolean isEmailValid, isPasswordValid;
@@ -73,6 +75,7 @@ public class LoginActivity extends AppCompatActivity {
         textInputEditTextEmail = findViewById(R.id.email);
         textInputEditTextPassword = findViewById(R.id.password);
         buttonLogin = findViewById(R.id.buttonLogin);
+        btnScan = findViewById(R.id.btnScan);
         textViewSignUp = findViewById(R.id.signUpText);
         progressBar = findViewById(R.id.progress);
         // Disable the login button at startup
@@ -258,6 +261,14 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        btnScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), AdminQRScanActivity.class);
                 startActivity(intent);
             }
         });

@@ -8,7 +8,7 @@
         android:id="@+id/save_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/button_background"
+        android:background="@drawable/reporting_button_rounded_background"
         android:onClick="onSaveButtonClicked"
         android:text="Save"
         android:textColor="@color/white"

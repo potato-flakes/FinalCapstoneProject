@@ -15,7 +15,8 @@
         android:fontFamily="@font/poppinsbold"
         android:paddingBottom="16dp"
         android:text="Pet Bottle Scanner"
-        android:textSize="24sp" />
+        android:textSize="24sp"
+        android:textColor="@color/colorPrimary"/>
 
     <!-- Description -->
     <TextView
@@ -38,7 +39,7 @@
         android:adjustViewBounds="true"
         android:paddingBottom="16dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/ic_camera" />
+        android:src="@drawable/ic_scan_poster" />
 
     <!-- Button to Redirect -->
     <Button
@@ -46,6 +47,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:fontFamily="@font/poppinsmedium"
         android:text="Go to Scan Feature" />
 </LinearLayout>

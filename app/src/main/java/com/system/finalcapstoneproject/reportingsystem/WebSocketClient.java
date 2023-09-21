@@ -1,5 +1,7 @@
 package com.system.finalcapstoneproject.reportingsystem;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.system.finalcapstoneproject.UrlConstants;
@@ -20,24 +22,38 @@ public class WebSocketClient {
     private MessageListener messageListener; // Add this field
     private String adminFullName;
     private String IP_ADDRESS = UrlConstants.IP_ADDRESS;
+    private Context context; // Add a Context field
 
     // Define a message listener interface
     public interface MessageListener {
         void onMessageReceived(String adminFullName, String sender, String message);
     }
 
-    public WebSocketClient() {
+    public WebSocketClient(Context context) {
+        this.context = context; // Initialize the context field
         // Create an OkHttpClient instance
         OkHttpClient client = new OkHttpClient();
         Log.e("WebSocketClient", "WebSocketClient - has launched");
 
-        String userId = "9183797"; // Replace with the actual user ID
+        SharedPreferences sharedPreferences = context.getSharedPreferences("UserData", Context.MODE_PRIVATE);
+        String user_id = sharedPreferences.getString("user_id", "");
+        Log.e("HomeActivity", "retrieveUserDetails - User ID:" + user_id);
+
+        int newUserID = 0;
+        try {
+            int userIdAsInt = Integer.parseInt(user_id);
+            newUserID = userIdAsInt; // Assign the parsed value to newUserID
+            Log.e("HomeActivity", "User ID as int:" + newUserID);
+        } catch (NumberFormatException e) {
+            // Handle the case where user_id is not a valid integer
+            e.printStackTrace();
+        }
+
         String adminId = "1891944"; // Replace with the actual admin ID
-        Request request = new Request.Builder()
-                .url("ws://" + IP_ADDRESS + ":8081?user_id=" + userId + "&admin_id=" + adminId + "&getUsersMessages=true")
-                .build();
+        Request request = new Request.Builder().url("ws://" + IP_ADDRESS + ":8081?user_id=" + user_id + "&admin_id=" + adminId + "&getUsersMessages=true").build();
 
         // Create a WebSocket listener
+        int finalNewUserID = newUserID;
         WebSocketListener listener = new WebSocketListener() {
             @Override
             public void onOpen(WebSocket webSocket, Response response) {
@@ -55,27 +71,24 @@ public class WebSocketClient {
 
                         // Extract message data from the JSON object
                         int senderId = messageObject.getInt("sender_id");
-                        int receiverId = messageObject.getInt("receiver_id");
                         String message = messageObject.getString("message");
 
                         // Determine the sender's identity based on senderId and receiverId
-                        String senderName;
-                        if (senderId == 9183797) {
-                            senderName = "You";
-                            String adminFirstName = messageObject.getString("receiver_firstname");
-                            String adminLastName = messageObject.getString("receiver_lastname");
-                            adminFullName = adminFirstName + " " + adminLastName;
-                            Log.e("WebSocketClient", "onMessage - adminName: " + adminFullName);
+                        String senderName = null;
+                        if (senderId == finalNewUserID) {
+                            senderName = "You"; // You are the sender
                         } else {
-                            // Handle other cases if needed
-                            senderName = "Admin"; // Replace with appropriate handling
+                            // Handle messages sent by the admin
+                            String adminFirstName = messageObject.getString("sender_firstname");
+                            String adminLastName = messageObject.getString("sender_lastname");
+                            adminFullName = adminFirstName + " " + adminLastName;
+                            senderName = "Admin"; // You are the sender
                         }
 
-
-                        // Notify the message listener with the sender's identity and message
                         if (messageListener != null) {
                             messageListener.onMessageReceived(adminFullName, senderName, message);
                         }
+
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

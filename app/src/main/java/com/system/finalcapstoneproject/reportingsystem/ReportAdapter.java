@@ -229,15 +229,20 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ReportView
         // Create a method to format the data for the QR code
         private String createQRCodeData(Report report) {
             // You can format the data as needed, e.g., report details, user info, reward money
+            // Format the time without colons
+            String formattedTime = report.getCrime_time().replace(":", "");
+            // Remove colons from the "Short Description" field
+            String shortDescription = report.getCrime_description().replace(":", " ");
+
             // Here's a sample format (customize as per your requirements):
             return "Report ID: " + report.getReportId() + "\n" +
                     "Crime Type: " + report.getCrime_type() + "\n" +
                     "Person of Interest: " + report.getCrime_person() + "\n" +
                     "When it happened: " + report.getCrime_date() + "\n" +
-                    "What time it happened: " + report.getCrime_time() + "\n" +
+                    "What time it happened: " + formattedTime + "\n" +
                     "Is the user used current location: " + report.getIsUseCurrentLocation() + "\n" +
                     "Where it happened: " + report.getCrime_location() + "\n" +
-                    "Short Description: " + report.getCrime_description() + "\n" +
+                    "Short Description: " + shortDescription + "\n" +
                     "User Details" + "\n" +
                     "User Name: " + report.getCrime_user_name() + "\n" +
                     "User Sex: " + report.getCrime_user_sex() + "\n" +

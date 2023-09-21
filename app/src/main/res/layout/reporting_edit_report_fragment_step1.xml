@@ -59,7 +59,7 @@
                         android:button="@drawable/reporting_crimetype_radio_button"
                         android:fontFamily="@font/poppinsmedium"
                         android:padding="15dp"
-                        android:text="Illegal Dumping"
+                        android:text="Burning of Solid Waste"
                         android:textSize="15sp" />
                     <!-- Add a horizontal divider here -->
                     <View
@@ -75,26 +75,10 @@
                         android:button="@drawable/reporting_crimetype_radio_button"
                         android:fontFamily="@font/poppinsmedium"
                         android:padding="15dp"
-                        android:text="Vandalism"
+                        android:text="Illegal Dumping"
                         android:textSize="15sp" />
 
                     <!-- Add a horizontal divider here -->
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@android:color/darker_gray" />
-
-                    <RadioButton
-                        android:id="@+id/radioButton3"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:button="@drawable/reporting_crimetype_radio_button"
-                        android:fontFamily="@font/poppinsmedium"
-                        android:padding="15dp"
-                        android:text="Noise Pollution"
-                        android:textSize="15sp" />
-
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
@@ -108,7 +92,7 @@
                         android:button="@drawable/reporting_crimetype_radio_button"
                         android:fontFamily="@font/poppinsmedium"
                         android:padding="15dp"
-                        android:text="Air Pollution"
+                        android:text="Urinating in public"
                         android:textSize="15sp" />
 
                     <!-- Add a horizontal divider here -->
@@ -125,7 +109,7 @@
                         android:button="@drawable/reporting_crimetype_radio_button"
                         android:fontFamily="@font/poppinsmedium"
                         android:padding="15dp"
-                        android:text="Water Pollution"
+                        android:text="Spitting in public"
                         android:textSize="15sp" />
 
                     <!-- Add a horizontal divider here -->
@@ -142,7 +126,7 @@
                         android:button="@drawable/reporting_crimetype_radio_button"
                         android:fontFamily="@font/poppinsmedium"
                         android:padding="15dp"
-                        android:text="Wildlife Harm"
+                        android:text="Unorganized Garbage Stacking"
                         android:textSize="15sp" />
 
                     <!-- Add a horizontal divider here -->
@@ -159,7 +143,7 @@
                         android:button="@drawable/reporting_crimetype_radio_button"
                         android:fontFamily="@font/poppinsmedium"
                         android:padding="15dp"
-                        android:text="Unlawful Construction"
+                        android:text="Unsegregated Garbage"
                         android:textSize="15sp" />
                 </RadioGroup>
 

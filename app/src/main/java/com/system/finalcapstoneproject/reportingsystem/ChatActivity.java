@@ -1,11 +1,14 @@
 package com.system.finalcapstoneproject.reportingsystem;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,45 +16,52 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.system.finalcapstoneproject.R;
+import com.system.finalcapstoneproject.UrlConstants;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response; // This is the library for HTTP response handling
-
-import java.util.ArrayList;
-import java.util.List;
+import okhttp3.Response;
 
 
 public class ChatActivity extends AppCompatActivity {
     private EditText messageInput;
     private Button sendButton;
+    private ImageButton backButton;
     private RecyclerView messageRecyclerView;
     private MessageAdapter messageAdapter;
     private List<Messages> messageList;
     private WebSocketClient webSocketClient;
     private TextView adminNameTextView;
+    private String SEND_MESSAGE = UrlConstants.SEND_MESSAGE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.reporting_activity_chat);
-        String userId = "9183797"; // Replace with the actual user ID
+        SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
+        String user_id = sharedPreferences.getString("user_id", "");
+        Log.e("HomeActivity", "retrieveUserDetails - User ID:" + user_id);
+
         String adminId = "1891944"; // Replace with the actual admin ID
+
         // Initialize UI components
         messageInput = findViewById(R.id.messageInput);
         sendButton = findViewById(R.id.sendButton);
+        backButton = findViewById(R.id.backButton);
         messageRecyclerView = findViewById(R.id.messageRecyclerView);
         adminNameTextView = findViewById(R.id.adminNameTextView);
 
         // Initialize the WebSocket client
-        webSocketClient = new WebSocketClient();
+        webSocketClient = new WebSocketClient(this); // Pass 'this' as the context
 
         // Initialize the message list and adapter
         messageList = new ArrayList<>();
@@ -73,7 +83,7 @@ public class ChatActivity extends AppCompatActivity {
                 // Add the user message to the message list
                 if (!messageText.isEmpty()) {
                     Messages userMessage = new Messages("You", messageText);
-                    sendMessageToServer(userId, adminId, messageText);
+                    sendMessageToServer(user_id, adminId, messageText);
                     messageList.add(userMessage);
                     messageAdapter.notifyDataSetChanged();
 
@@ -84,6 +94,12 @@ public class ChatActivity extends AppCompatActivity {
                     // Clear the input field
                     messageInput.getText().clear();
                 }
+            }
+        });
+        backButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                closeChatSocket();
+                finish();
             }
         });
 
@@ -124,14 +140,15 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-    // Function to send a message to the server for storage
+    private void closeChatSocket() {
+        // Close the notificationWebSocketClient when the activity is destroyed
+        if (webSocketClient != null) {
+            webSocketClient.close();
+        }
+    }
 
-    // Function to send a message to the server for storage
     private void sendMessageToServer(String senderId, String receiverId, String messageText) {
         OkHttpClient client = new OkHttpClient();
-
-        // Replace with the actual URL of your send_message.php script
-        String url = "http://192.168.158.229/recyclearn/report_user/send_message.php";
 
         try {
             // Create a JSON object with the message data
@@ -151,7 +168,7 @@ public class ChatActivity extends AppCompatActivity {
 
             // Create an HTTP request
             Request request = new Request.Builder()
-                    .url(url)
+                    .url(SEND_MESSAGE)
                     .post(body)
                     .build();
 
@@ -188,5 +205,9 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        closeChatSocket();
+    }
 }

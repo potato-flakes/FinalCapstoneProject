@@ -2,33 +2,71 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <!-- Toolbar for the header -->
-    <androidx.appcompat.widget.Toolbar
+    <!-- Existing code... -->
+    <FrameLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary">
+        android:layout_height="100dp">
 
-        <!-- Back button -->
+        <!-- Header Image -->
         <ImageView
-            android:id="@+id/backButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:contentDescription="Back"
-            android:src="@drawable/ic_back" />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.9"
+            android:elevation="1dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/reporting_report_header" />
 
-        <!-- Admin name -->
-        <TextView
-            android:id="@+id/adminNameTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <!-- Overlay color -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.7"
+            android:background="@color/colorPrimary"
+            android:elevation="2dp" /> <!-- Set the desired opacity (0.0 to 1.0) -->
+
+        <!-- Toolbar for back button and notification icon -->
+        <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
             android:layout_gravity="center"
-            android:text="Admin Name"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp" />
-    </androidx.appcompat.widget.Toolbar>
+            android:elevation="10dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp">
+
+            <!-- Back button -->
+            <ImageButton
+                android:id="@+id/backButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:elevation="11dp"
+                android:src="@drawable/ic_back_left_arrow" />>
+
+            <!-- Admin name -->
+            <TextView
+                android:id="@+id/adminNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/poppinsmedium"
+                android:text="Admin Name"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
+
+            <!-- Admin name -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/poppinsmedium"
+                android:text=" - Administrator"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
+
+        </androidx.appcompat.widget.Toolbar>
+
+    </FrameLayout>
 
     <!-- activity_chat.xml -->
     <androidx.recyclerview.widget.RecyclerView

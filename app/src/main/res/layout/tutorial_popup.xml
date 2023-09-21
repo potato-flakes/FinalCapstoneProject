@@ -15,7 +15,8 @@
         android:fontFamily="@font/poppinsbold"
         android:paddingBottom="16dp"
         android:text="Informative Popups"
-        android:textSize="24sp" />
+        android:textSize="24sp"
+        android:textColor="@color/colorPrimary"/>
 
     <!-- Description -->
     <TextView
@@ -39,7 +40,7 @@
         android:adjustViewBounds="true"
         android:paddingBottom="16dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/ic_camera" />
+        android:src="@drawable/ic_popup_poster" />
 
     <!-- Button to Redirect -->
     <Button

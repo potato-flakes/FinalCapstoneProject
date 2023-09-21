@@ -3,7 +3,7 @@ package com.system.finalcapstoneproject.Domain;
 public class CategoryDomain {
     private String title;
     private String pic;
-    public CategoryDomain(String title, String pic){
+    public  CategoryDomain(String title, String pic){
         this.title = title;
         this.pic = pic;
     }
