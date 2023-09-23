@@ -31,6 +31,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.system.finalcapstoneproject.AdminScannerActivity.AdminDashboardActivity;
 import com.system.finalcapstoneproject.AdminScannerActivity.AdminQRScanActivity;
 
 import org.json.JSONException;
@@ -44,7 +45,6 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputLayout textInputLayoutPassword, textInputLayoutEmail;
     private TextInputEditText textInputEditTextEmail, textInputEditTextPassword;
     private Button buttonLogin;
-    private Button btnScan;
     private TextView textViewSignUp;
     private ProgressBar progressBar;
     private boolean isEmailValid, isPasswordValid;
@@ -75,7 +75,6 @@ public class LoginActivity extends AppCompatActivity {
         textInputEditTextEmail = findViewById(R.id.email);
         textInputEditTextPassword = findViewById(R.id.password);
         buttonLogin = findViewById(R.id.buttonLogin);
-        btnScan = findViewById(R.id.btnScan);
         textViewSignUp = findViewById(R.id.signUpText);
         progressBar = findViewById(R.id.progress);
         // Disable the login button at startup
@@ -198,9 +197,8 @@ public class LoginActivity extends AppCompatActivity {
                                             if (task.isSuccessful()) {
                                                 Log.e("LoginActivity", "buttonLogin - Email verification link sent");
                                                 if (firebaseAuth.getCurrentUser().isEmailVerified()) {
-                                                    Log.e("LoginActivity", "buttonLogin - Email is verified, redirecting to homepage");
+                                                    Log.e("LoginActivity", "buttonLogin - Email is verified");
                                                     if (response.contains("user_id")) {
-                                                        // Assuming the response contains a key-value pair like "user_id": "12345"
                                                         try {
                                                             JSONObject jsonResponse = new JSONObject(response);
                                                             String user_id = jsonResponse.getString("user_id");
@@ -216,9 +214,32 @@ public class LoginActivity extends AppCompatActivity {
                                                             // Handle JSON parsing error here
                                                         }
                                                     }
-                                                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-                                                    startActivity(intent);
-                                                    finish();
+                                                    // Check user role
+                                                    if (response.contains("access_level")) {
+                                                        try {
+                                                            JSONObject jsonResponse = new JSONObject(response);
+                                                            String access_level = jsonResponse.getString("access_level");
+                                                            Log.e("LoginActivity", "buttonLogin - access_level: " + access_level);
+                                                            if ("reportadmin".equals(access_level)) {
+                                                                // Redirect to the QR scanner activity
+                                                                Intent intent = new Intent(getApplicationContext(), AdminDashboardActivity.class);
+                                                                startActivity(intent);
+                                                                finish();
+                                                            } else {
+                                                                // User is not a report admin, redirect to the home activity
+                                                                Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                                                startActivity(intent);
+                                                                finish();
+                                                            }
+                                                            SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
+                                                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                                                            editor.putString("access_level", access_level);
+                                                            editor.apply();
+                                                        } catch (JSONException e) {
+                                                            e.printStackTrace();
+                                                            // Handle JSON parsing error here
+                                                        }
+                                                    }
                                                 } else {
                                                     // Email address is not verified
                                                     Toast.makeText(getApplicationContext(), "Email address is not verified. Please verify your email address", Toast.LENGTH_SHORT).show();
@@ -265,13 +286,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        btnScan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), AdminQRScanActivity.class);
-                startActivity(intent);
-            }
-        });
     }
 
     private void signIn() {
@@ -295,10 +309,18 @@ public class LoginActivity extends AppCompatActivity {
 
     // Check login state on app launch
     private void checkLoginStateOnLaunch() {
+        SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
+        String access_level = sharedPreferences.getString("access_level", "");
         if (isLoggedIn(this)) {
-            // User is logged in, navigate to the home screen
-            startActivity(new Intent(this, HomeActivity.class));
-            finish(); // Finish the login activity to prevent going back
+            if ("reportadmin".equals(access_level)) {
+                // User is logged in as a report admin, navigate to the Admin Dashboard
+                startActivity(new Intent(this, AdminDashboardActivity.class));
+                finish(); // Finish the login activity to prevent going back
+            } else {
+                // User is logged in as a regular user, navigate to the HomeActivity
+                startActivity(new Intent(this, HomeActivity.class));
+                finish(); // Finish the login activity to prevent going back
+            }
         }
     }
 

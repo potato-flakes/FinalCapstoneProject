@@ -2,7 +2,7 @@ package com.system.finalcapstoneproject;
 
 public class UrlConstants {
 
-    public static final String IP_ADDRESS = "192.168.1.11";
+    public static final String IP_ADDRESS = "192.168.1.23";
     public static final String BASE_URL = "http://" + IP_ADDRESS + "/recyclearn/";
     public static final String LOGIN_URL = BASE_URL + "user/login.php";
     public static final String SIGNUP_URL = BASE_URL + "user/signup.php";
@@ -26,4 +26,10 @@ public class UrlConstants {
     public static final String UPLOAD_IMAGE_TUTORIALS = BASE_URL + "tutorial/upload.php";
     // ChatActivty
     public static final String SEND_MESSAGE = BASE_URL + "report_user/send_message.php";
+    // RewardClaimActivity
+    public static final String GET_REWARDS_CLAIMED = BASE_URL + "report_user/get_rewards_claimed.php";
+    public static final String UPDATE_REWARD_STATUS = BASE_URL + "report_user/update_reward_status.php";
+    public static final String GET_REWARD_STATUS = BASE_URL + "report_user/get_reward_status.php";
+    public static final String FETCH_UNCLAIMED_REPORTS = BASE_URL + "report_user/fetch_unclaimed_reports.php";
+    public static final String FETCH_CLAIMED_REPORTS = BASE_URL + "report_user/fetch_claimed_reports.php";
 }

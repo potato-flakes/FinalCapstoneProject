@@ -44,6 +44,9 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".AdminScannerActivity.AdminQRScanActivity" />
         <activity android:name=".AdminScannerActivity.RewardClaimActivity" />
+        <activity android:name=".AdminScannerActivity.AdminDashboardActivity" />
+        <activity android:name=".AdminScannerActivity.UnclaimedReportsActivity" />
+        <activity android:name=".AdminScannerActivity.ClaimedRewardsActivity" />
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
