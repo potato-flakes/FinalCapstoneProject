@@ -119,7 +119,6 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
-
         textInputEditTextLastname.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {

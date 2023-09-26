@@ -87,6 +87,17 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ReportView
         if (report.getReportStatus().equals("Approved")) {
             holder.claimRewardButton.setVisibility(View.VISIBLE);
             holder.menuButton.setVisibility(View.GONE); // Hide the menuButton for approved reports
+            // Check if the report status is "Approved" to show/hide buttons
+            if (report.getReward_claimed().equals("1")) {
+                holder.claimRewardButton.setEnabled(false);
+                holder.claimRewardButton.setText("Reward Claimed");
+            } else if (report.getReward_claimed().equals("2")){
+                holder.claimRewardButton.setEnabled(false);
+                holder.claimRewardButton.setText("Reward Aborted");
+            } else {
+                holder.claimRewardButton.setEnabled(true);
+                holder.claimRewardButton.setText("Claim Reward");
+            }
         } else {
             holder.claimRewardButton.setVisibility(View.GONE);
             holder.menuButton.setVisibility(View.VISIBLE); // Show the menuButton for non-approved reports

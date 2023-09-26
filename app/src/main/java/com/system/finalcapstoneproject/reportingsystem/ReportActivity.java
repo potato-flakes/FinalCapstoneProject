@@ -476,10 +476,10 @@ public class ReportActivity extends AppCompatActivity {
                     String isUseCurrentLocation = jsonObject.getString("isUseCurrentLocation");
                     String isIdentified = jsonObject.getString("isIdentified");
                     String status = jsonObject.getString("status");
-
+                    String reward_claimed = jsonObject.getString("reward_claimed");
 
                     Report report = new Report(report_id, user_id, crime_type, crime_person, crime_location, crime_date, crime_description, crime_time, crime_barangay, crime_user_name,
-                            crime_user_sex, crime_user_phone, crime_user_email, report_date, isUseCurrentLocation, isIdentified, status);
+                            crime_user_sex, crime_user_phone, crime_user_email, report_date, isUseCurrentLocation, isIdentified, status, reward_claimed);
 
                     reportList.add(report);
                 }

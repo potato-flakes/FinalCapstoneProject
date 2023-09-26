@@ -2,13 +2,14 @@ package com.system.finalcapstoneproject;
 
 public class UrlConstants {
 
-    public static final String IP_ADDRESS = "192.168.1.23";
+    public static final String IP_ADDRESS = "192.168.1.25";
     public static final String BASE_URL = "http://" + IP_ADDRESS + "/recyclearn/";
     public static final String LOGIN_URL = BASE_URL + "user/login.php";
     public static final String SIGNUP_URL = BASE_URL + "user/signup.php";
     public static final String CHECKEMAIL_URL = BASE_URL + "user/check_email_exists.php";
     public static final String PROFILE_URL = BASE_URL + "user/profile.php";
-    public static final String UPDATEPROFILE_URL = BASE_URL + "user/update_profile.php";
+    public static final String GET_USER_PROFILE_IMAGES = BASE_URL + "user/user_profile_images/";
+    public static final String UPDATE_PASSWORD_URL = BASE_URL + "user/update_password.php";
     // Report_activity
     public static final String GET_REPORTS = BASE_URL + "report_user/get_reports.php?user_id=";
     public static final String DELETE_REPORTS = BASE_URL + "report_user/delete_report.php";
@@ -32,4 +33,5 @@ public class UrlConstants {
     public static final String GET_REWARD_STATUS = BASE_URL + "report_user/get_reward_status.php";
     public static final String FETCH_UNCLAIMED_REPORTS = BASE_URL + "report_user/fetch_unclaimed_reports.php";
     public static final String FETCH_CLAIMED_REPORTS = BASE_URL + "report_user/fetch_claimed_reports.php";
+    public static final String FETCH_ABORTED_REPORTS = BASE_URL + "report_user/fetch_aborted_reports.php";
 }

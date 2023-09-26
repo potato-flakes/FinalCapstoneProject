@@ -51,11 +51,15 @@
     <string name="error_password_mismatch">Error: Password mismatch</string>
     <string name="error_invalid_fullname">Error: Numbers and special characters not allowed</string>
     <string name="error_email_exists">Error: Email address already exists</string>
+    <string name="error_invalid_phone_number">Error: Incorrect phone number format. Ex. 09123456789</string>
+    <string name="error_enter_phone_number">Error: Email address already exists</string>
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
     <string name="resend_countdown">%1$d seconds</string>
     <string name="email_verification_message">We sent an email to %1$s. \n Please check your email to verify your account.</string>
     <string name="todo">TODO</string>
+    <string name="about_us_description">\n\tHere at Recyclearn, we believe that small changes can make a big impact on our environment. That\'s why we created an android app to help you make sustainable choices in your daily life.\n\nOur journey began when one of our co-founders, a passionate environmentalist, noticed the lack of awareness and education about recycling among his community. He saw so much potential in using technology to bridge this gap and empower individuals to make a positive change for our planet.\n\nRecyclearn is not just about scanning plastic bottles and giving recommendations, it\'s also about creating a community of environmentally-conscious individuals who can report any harmful actions and stay informed about the latest news and updates on plastic recycling. Together, we can make a difference and create a more sustainable future for generations to come. Join us on this journey towards a greener world!</string>
+    <string name="error_password_cannot_old_password">Error: New password cannot be the old password</string>
     <!-- strings.xml -->
     <string-array name="notification_interval_entries">
         <item>Every 1 Minute</item>

@@ -170,6 +170,9 @@ public class LoginActivity extends AppCompatActivity {
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Disable the login button to prevent multiple clicks
+                buttonLogin.setEnabled(false);
+
                 final String email, password;
 
                 email = Objects.requireNonNull(textInputEditTextEmail.getText()).toString().trim();
@@ -194,6 +197,8 @@ public class LoginActivity extends AppCompatActivity {
                                         // Now, check if the email is verified
                                         final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
                                         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+                                            // Re-enable the login button
+
                                             if (task.isSuccessful()) {
                                                 Log.e("LoginActivity", "buttonLogin - Email verification link sent");
                                                 if (firebaseAuth.getCurrentUser().isEmailVerified()) {
@@ -251,11 +256,15 @@ public class LoginActivity extends AppCompatActivity {
                                         });
                                     } else {
                                         // Incorrect email or password
+                                        // Re-enable the login button
+                                        buttonLogin.setEnabled(true);
                                         Toast.makeText(getApplicationContext(), "Incorrect email or password", Toast.LENGTH_SHORT).show();
                                     }
                                 },
                                 error -> {
                                     progressBar.setVisibility(View.GONE);
+                                    // Re-enable the login button
+                                    buttonLogin.setEnabled(true);
                                     Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_SHORT).show();
                                 }
                         ) {
@@ -270,13 +279,18 @@ public class LoginActivity extends AppCompatActivity {
 
                         requestQueue.add(stringRequest);
                     } else {
+                        // Re-enable the login button
+                        buttonLogin.setEnabled(true);
                         Toast.makeText(getApplicationContext(), "Invalid email address", Toast.LENGTH_SHORT).show();
                     }
                 } else {
+                    // Re-enable the login button
+                    buttonLogin.setEnabled(true);
                     Toast.makeText(getApplicationContext(), "All fields are required", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
 
         textViewSignUp.setOnClickListener(new View.OnClickListener() {
             @Override

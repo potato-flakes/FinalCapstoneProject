@@ -24,11 +24,11 @@ public class Report {
     private String isUseCurrentLocation;
     private String isIdentified;
     private String status;
-
+    private String reward_claimed;
     private List<String> imageUrls;
     private List<String> imagePaths; // Ad
 
-    public Report(String report_id, String user_id, String crime_type, String crime_person, String crime_location, String crime_date, String crime_description, String crime_time, String crime_barangay, String crime_user_name, String crime_user_sex, String crime_user_phone, String crime_user_email, String report_date, String isUseCurrentLocation, String isIdentified, String status) {
+    public Report(String report_id, String user_id, String crime_type, String crime_person, String crime_location, String crime_date, String crime_description, String crime_time, String crime_barangay, String crime_user_name, String crime_user_sex, String crime_user_phone, String crime_user_email, String report_date, String isUseCurrentLocation, String isIdentified, String status, String reward_claimed) {
         this.report_id = report_id;
         this.user_id = user_id;
         this.crime_type = crime_type;
@@ -46,6 +46,7 @@ public class Report {
         this.isUseCurrentLocation = isUseCurrentLocation;
         this.isIdentified = isIdentified;
         this.status = status;
+        this.reward_claimed = reward_claimed;
         this.imageUrls = new ArrayList<>();
         imagePaths = new ArrayList<>();
     }
@@ -104,6 +105,9 @@ public class Report {
     }
     public String getStatus() {
         return status;
+    }
+    public String getReward_claimed() {
+        return reward_claimed;
     }
     public void addImageUrl(String imageUrl) {
         imageUrls.add(imageUrl);

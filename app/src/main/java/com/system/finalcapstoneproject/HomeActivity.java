@@ -187,7 +187,7 @@ public class HomeActivity extends AppCompatActivity {
         profileBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+                Intent intent = new Intent(HomeActivity.this, ShowProfileActivity.class);
                 startActivity(intent);
             }
         });
@@ -525,6 +525,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        retrieveUserDetails();
         Log.e("HomeActivity", "onResume - was called: ");
         // Check if the notification interval has been updated in SharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
