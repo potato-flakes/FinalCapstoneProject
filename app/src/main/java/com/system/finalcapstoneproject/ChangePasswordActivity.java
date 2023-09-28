@@ -91,7 +91,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     textInputLayoutPassword.requestFocus();
                     isPasswordValid = false;
                 } else if (receivedPassword.equals(password)) {
-                    textInputLayoutPassword.setHelperText(getString(R.string.error_password_cannot_old_password));
+                    textInputLayoutPassword.setError(getString(R.string.error_password_cannot_old_password));
                     textInputLayoutPassword.requestFocus();
                     isPasswordValid = false;
                 } else {

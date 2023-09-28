@@ -9,6 +9,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,8 +37,8 @@ import okhttp3.Response;
 
 public class ChatActivity extends AppCompatActivity {
     private EditText messageInput;
-    private Button sendButton;
-    private ImageButton backButton;
+    private ImageView sendButton;
+    private ImageView backButton;
     private RecyclerView messageRecyclerView;
     private MessageAdapter messageAdapter;
     private List<Messages> messageList;
@@ -50,6 +53,8 @@ public class ChatActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
         String user_id = sharedPreferences.getString("user_id", "");
         Log.e("HomeActivity", "retrieveUserDetails - User ID:" + user_id);
+        RelativeLayout loadingProgressBar = findViewById(R.id.loading_screen);
+        loadingProgressBar.setVisibility(View.VISIBLE); // Show the progress bar
 
         String adminId = "1891944"; // Replace with the actual admin ID
 
@@ -82,7 +87,7 @@ public class ChatActivity extends AppCompatActivity {
 
                 // Add the user message to the message list
                 if (!messageText.isEmpty()) {
-                    Messages userMessage = new Messages("You", messageText);
+                    Messages userMessage = new Messages("You", messageText, null);
                     sendMessageToServer(user_id, adminId, messageText);
                     messageList.add(userMessage);
                     messageAdapter.notifyDataSetChanged();
@@ -98,6 +103,19 @@ public class ChatActivity extends AppCompatActivity {
         });
         backButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
+                // Send a message to stop notifications
+                JSONObject stopFetchingUserMessage = new JSONObject();
+                try {
+                    stopFetchingUserMessage.put("type", "stopFetchingUserMessage");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                if (webSocketClient != null) {
+                    webSocketClient.send(stopFetchingUserMessage.toString());
+                }
+
+                // Close the WebSocket connection
                 closeChatSocket();
                 finish();
             }
@@ -106,7 +124,7 @@ public class ChatActivity extends AppCompatActivity {
         webSocketClient.setMessageListener(new WebSocketClient.MessageListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
-            public void onMessageReceived(String adminFullName, String sender, String message) {
+            public void onMessageReceived(String adminFullName, String sender, String message, String adminProfileImageUrl) {
                 // Check if the message already exists in the list
                 boolean messageExists = false;
                 for (Messages existingMessage : messageList) {
@@ -118,7 +136,7 @@ public class ChatActivity extends AppCompatActivity {
 
                 if (!messageExists) {
                     // Create a message object for the received message
-                    Messages receivedMessage = new Messages(sender, message);
+                    Messages receivedMessage = new Messages(sender, message, adminProfileImageUrl);
                     Log.e("ChatActivity", "onMessageReceived - Received Message: " + sender + message);
 
                     // Add the received message to the message list
@@ -129,6 +147,7 @@ public class ChatActivity extends AppCompatActivity {
                         public void run() {
                             messageAdapter.notifyDataSetChanged();
                             adminNameTextView.setText(adminFullName);
+                            loadingProgressBar.setVisibility(View.GONE); // Hide the progress bar
                         }
                     });
 

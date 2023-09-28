@@ -52,7 +52,7 @@
     <string name="error_invalid_fullname">Error: Numbers and special characters not allowed</string>
     <string name="error_email_exists">Error: Email address already exists</string>
     <string name="error_invalid_phone_number">Error: Incorrect phone number format. Ex. 09123456789</string>
-    <string name="error_enter_phone_number">Error: Email address already exists</string>
+    <string name="error_enter_phone_number">Error: Please enter your phone number</string>
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
     <string name="resend_countdown">%1$d seconds</string>

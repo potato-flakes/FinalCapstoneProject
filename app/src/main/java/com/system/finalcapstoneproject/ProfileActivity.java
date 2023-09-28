@@ -7,15 +7,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,6 +53,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,6 +70,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ProfileActivity extends AppCompatActivity {
+    private static final long COUNTDOWN_DURATION = 60000; // 60 seconds (adjust as needed)
+    private static final int PICK_IMAGE_REQUEST = 1; // Arbitrary request code
+    private long lastResendClickTime = 0;
+    private boolean profileImageChanged = false;
+    public boolean isFirstNameValid;
+    public boolean isLastNameValid;
+    public boolean isPhoneValid;
+    private boolean isSexValid;
+    private boolean isEmailValid;
+    private boolean isPasswordValid;
+    private boolean isEmailAlreadyExisting;
+    private boolean isUserProfileUpdateSuccessful;
     private RelativeLayout changePasswordLayout;
     private TextInputLayout textInputLayoutFirstName, textInputLayoutLastname, textInputLayoutPhone;
     private TextInputEditText first_name, last_name, email_address, phone_number;
@@ -77,20 +93,9 @@ public class ProfileActivity extends AppCompatActivity {
     private Handler handler = new Handler(Looper.getMainLooper());
     private android.app.AlertDialog alertDialog;
     private CountDownTimer countDownTimer;
-    private static final long COUNTDOWN_DURATION = 60000; // 60 seconds (adjust as needed)
-    private static final int PICK_IMAGE_REQUEST = 1; // Arbitrary request code
-    private long lastResendClickTime = 0;
     private String checkEmailExistence = UrlConstants.CHECKEMAIL_URL;
     private String LOGIN_URL = UrlConstants.LOGIN_URL;
     private String user_id;
-    public boolean isFirstNameValid;
-    public boolean isLastNameValid;
-    public boolean isPhoneValid;
-    private boolean isSexValid;
-    private boolean isEmailValid;
-    private boolean isPasswordValid;
-    private boolean isEmailAlreadyExisting;
-    // Declare the dialog variable at the class level
     private AlertDialog dialog;
     private TextInputLayout textInputLayoutChangeEmail;
     private TextInputEditText newEmailEditText;
@@ -99,7 +104,7 @@ public class ProfileActivity extends AppCompatActivity {
     private String lastPhone;
     private String lastSex;
     private RadioButton selectedRadioButton;
-
+    private Bitmap bitmap;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,13 +120,15 @@ public class ProfileActivity extends AppCompatActivity {
         textInputLayoutFirstName = findViewById(R.id.textInputLayoutFirstName);
         textInputLayoutLastname = findViewById(R.id.textInputLayoutLastName);
         textInputLayoutPhone = findViewById(R.id.textInputLayoutPhone);
+        genderRadioGroup = findViewById(R.id.genderRadioGroup);
         changeEmailText = findViewById(R.id.changeEmailText);
         saveDetailsButton = findViewById(R.id.save_details_button);
+        backButton = findViewById(R.id.back_toggle);
+
         SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
         String passed_user_id = sharedPreferences.getString("user_id", "");
         user_id = passed_user_id;
-        RadioGroup genderRadioGroup = findViewById(R.id.genderRadioGroup);
-        enableSaveChangesButton();
+
         genderRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -139,7 +146,6 @@ public class ProfileActivity extends AppCompatActivity {
                 enableSaveChangesButton();
             }
         });
-
         first_name.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -235,7 +241,6 @@ public class ProfileActivity extends AppCompatActivity {
             public void afterTextChanged(Editable editable) {
             }
         });
-
         changeEmailText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -431,7 +436,6 @@ public class ProfileActivity extends AppCompatActivity {
                                             return params;
                                         }
                                     };
-
                                     requestQueue.add(stringRequest);
                                 } else {
                                     Toast.makeText(ProfileActivity.this, "Please enter the password verification", Toast.LENGTH_SHORT).show();
@@ -457,7 +461,6 @@ public class ProfileActivity extends AppCompatActivity {
                 dialog.show();
             }
         });
-
         uploadImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -467,8 +470,6 @@ public class ProfileActivity extends AppCompatActivity {
                 startActivityForResult(intent, PICK_IMAGE_REQUEST);
             }
         });
-
-        backButton = findViewById(R.id.back_toggle);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -483,7 +484,7 @@ public class ProfileActivity extends AppCompatActivity {
                 saveUserDetails();
             }
         });
-
+        enableSaveChangesButton();
         retrieveUserDetails();
     }
 
@@ -493,7 +494,7 @@ public class ProfileActivity extends AppCompatActivity {
         boolean phoneIsValid = isPhoneValid;
         boolean sexIsValid = isSexValid;
 
-        Log.e("ProfileActivity", "enableSaveChangesButton - State: " + firstNameIsValid + lastNameIsValid + phoneIsValid + sexIsValid);
+        Log.e("ProfileActivity", "enableSaveChangesButton - State: " + hasChanges() + profileImageChanged + firstNameIsValid + lastNameIsValid + phoneIsValid + sexIsValid);
 
         if (hasChanges() && firstNameIsValid && lastNameIsValid && phoneIsValid && sexIsValid) {
             saveDetailsButton.setEnabled(true);
@@ -522,13 +523,13 @@ public class ProfileActivity extends AppCompatActivity {
         }
         Log.e("ProfileActivity", "hasChanges - Current State: " + currentFirstName + currentLastName + currentPhone + selectedGender);
         Log.e("ProfileActivity", "hasChanges - Last State: " + !currentFirstName.equals(lastFirstName) + !currentLastName.equals(lastLastName) + !currentPhone.equals(lastPhone) + !selectedGender.equals(lastSex));
-        // Compare current values with original values
-        return !currentFirstName.equals(lastFirstName)
-                || !currentLastName.equals(lastLastName)
-                || !currentPhone.equals(lastPhone)
-                || (selectedGender != null && !selectedGender.equals(lastSex));
+        if (profileImageChanged){
+            return true;
+        } else {
+            // Compare current values with original values
+            return !currentFirstName.equals(lastFirstName) || !currentLastName.equals(lastLastName) || !currentPhone.equals(lastPhone) || !selectedGender.equals(lastSex);
 
-
+        }
     }
 
     private void enableConfirmButton(boolean emailIsValid, boolean isEmailAlreadyExisting) {
@@ -707,7 +708,7 @@ public class ProfileActivity extends AppCompatActivity {
                 // Declare response variable outside the try-catch block
                 String response = "";
                 try {
-                    // Create JSON object with crime data
+                    // Create JSON object with user data
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("user_id", user_id);
                     jsonObject.put("newFirstName", newFirstName);
@@ -715,11 +716,10 @@ public class ProfileActivity extends AppCompatActivity {
                     jsonObject.put("newEmail", newEmail);
                     jsonObject.put("newPhone", newPhone);
                     jsonObject.put("selectedGender", finalSelectedGender);
-
                     Log.d("ProfileActivity", "reportCrime - Data to be passed: " + jsonObject);
 
                     // Send the data to the PHP API and get the response
-                    URL url = new URL(UrlConstants.UPDATE_PASSWORD_URL);
+                    URL url = new URL(UrlConstants.UPDATE_PROFILE_URL);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("POST");
                     connection.setRequestProperty("Content-Type", "application/json");
@@ -747,15 +747,67 @@ public class ProfileActivity extends AppCompatActivity {
                         // Parse the response as JSON
                         JSONObject jsonResponse = new JSONObject(response.toString());
                         Log.d("ProfileActivity", "reportCrime - JSON Response - Data upload: " + jsonResponse);
-                        // Extract the report ID from the response
-                        String message = jsonResponse.getString("message");
-                        Log.d("ProfileActivity", "reportCrime - Retrieved Message from server: " + message);
+                        // Extract the status from the response
+                        String status = jsonResponse.getString("status");
 
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(ProfileActivity.this, "Details saved successfully!", Toast.LENGTH_SHORT).show();
-                                finish();
+                                if (status.equals("success")) {
+                                    // Display the toast message when the update is successful
+                                    ByteArrayOutputStream byteArrayOutputStream;
+                                    byteArrayOutputStream = new ByteArrayOutputStream();
+                                    if (bitmap != null) {
+                                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+                                        byte[] bytes = byteArrayOutputStream.toByteArray();
+                                        final String base64Image = Base64.encodeToString(bytes, Base64.DEFAULT);
+                                        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+                                        String url = UrlConstants.UPDATE_PROFILE_PICTURE;
+                                        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                                                new Response.Listener<String>() {
+                                                    @Override
+                                                    public void onResponse(String response) {
+                                                        Log.e("Step3Fragment", "sendReport - response: " + response);
+                                                        // Assuming you have the PHP response stored in a variable 'response'
+                                                        try {
+                                                            JSONObject jsonResponse = new JSONObject(response);
+                                                            String status = jsonResponse.getString("status");
+
+                                                            if (status.equals("success")) {
+                                                                // The status is "success," proceed with the success toast message
+                                                                Toast.makeText(ProfileActivity.this, "Details saved successfully!", Toast.LENGTH_SHORT).show();
+                                                                finish();
+                                                            } else {
+                                                                // The status is not "success," display an error toast message
+                                                                Toast.makeText(getApplicationContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        } catch (JSONException e) {
+                                                            // Handle JSON parsing error here
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                }, new Response.ErrorListener() {
+                                            @Override
+                                            public void onErrorResponse(VolleyError error) {
+                                                Toast.makeText(ProfileActivity.this, error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        }) {
+                                            protected Map<String, String> getParams() {
+                                                Map<String, String> paramV = new HashMap<>();
+                                                paramV.put("image", base64Image);
+                                                paramV.put("user_id", user_id);
+                                                return paramV;
+                                            }
+                                        };
+                                        queue.add(stringRequest);
+                                    } else {
+                                        Toast.makeText(ProfileActivity.this, "Details saved successfully!", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }
+                                } else {
+                                    // Display an error message when the update fails
+                                    Toast.makeText(ProfileActivity.this, "Details saved failed!", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         });
                     } else {
@@ -783,7 +835,6 @@ public class ProfileActivity extends AppCompatActivity {
 
 
     private void retrieveUserDetails() {
-
         @SuppressLint("StaticFieldLeak") AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... voids) {
@@ -832,9 +883,9 @@ public class ProfileActivity extends AppCompatActivity {
                         String phone = jsonObject.getString("phone");
                         String joined = jsonObject.getString("joined");
                         // Inside doInBackground
-                        String profileImageUrl = jsonObject.getString("tmp");
+                        String profileImageUrl = jsonObject.getString("profile_image");
 
-                        String imageUrl = UrlConstants.GET_USER_PROFILE_IMAGES + profileImageUrl + ".jpeg";
+                        String imageUrl = UrlConstants.GET_USER_PROFILE_IMAGES + profileImageUrl;
 
                         ImageView profileImage = findViewById(R.id.profile_image);
                         Picasso.get().load(imageUrl).into(profileImage);
@@ -852,7 +903,13 @@ public class ProfileActivity extends AppCompatActivity {
                         first_name.setText(firstname);
                         last_name.setText(lastname);
                         email_address.setText(email);
-                        phone_number.setText(phone);
+                        if (phone.equals("None")){
+                            phone_number.setText("");
+                            textInputLayoutPhone.setError(null);
+                            textInputLayoutPhone.setErrorEnabled(false);
+                        } else {
+                            phone_number.setText(phone);
+                        }
                         // Select the appropriate radio button based on user_sex
                         selectedRadioButton = null;
 
@@ -884,7 +941,6 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private boolean isValidEmail(String email) {
-
         String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
         return email.matches(emailPattern);
     }
@@ -896,10 +952,20 @@ public class ProfileActivity extends AppCompatActivity {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
             // Get the selected image's URI
             Uri imageUri = data.getData();
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
             // Load the selected image into the ImageView using Picasso
             ImageView profileImage = findViewById(R.id.profile_image);
             Picasso.get().load(imageUri).into(profileImage);
+
+            // Set the flag to indicate that the profile image has changed
+            profileImageChanged = true;
+            // Enable the "Save" button
+            enableSaveChangesButton();
         }
     }
 

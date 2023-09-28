@@ -2,71 +2,94 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <!-- Existing code... -->
-    <FrameLayout
+
+    <!-- Horizontal Line Below Header -->
+    <View
+        android:id="@+id/horizontalLine"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/toolbar"
+        android:background="#020202"
+        android:elevation="10dp" />
+
+    <!-- Toolbar for back button and notification icon -->
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="100dp">
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:elevation="10dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp">
 
-        <!-- Header Image -->
+        <!-- Back button -->
         <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:alpha="0.9"
-            android:elevation="1dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/reporting_report_header" />
+            android:id="@+id/backButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:elevation="11dp"
+            android:src="@drawable/ic_back_left_arrow_black" />
 
-        <!-- Overlay color -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:alpha="0.7"
-            android:background="@color/colorPrimary"
-            android:elevation="2dp" /> <!-- Set the desired opacity (0.0 to 1.0) -->
+        <!-- Admin Profile Image -->
+        <ImageView
+            android:id="@+id/adminProfileImageView"
+            android:layout_width="62dp"
+            android:layout_height="62dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:elevation="5dp"
+            android:src="@drawable/logo" />
 
-        <!-- Toolbar for back button and notification icon -->
-        <androidx.appcompat.widget.Toolbar
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:layout_gravity="center"
-            android:elevation="10dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp">
+        <!-- Admin Name and Role -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/adminProfileImageView"
+            android:elevation="5dp"
+            android:orientation="vertical">
 
-            <!-- Back button -->
-            <ImageButton
-                android:id="@+id/backButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:elevation="11dp"
-                android:src="@drawable/ic_back_left_arrow" />>
-
-            <!-- Admin name -->
+            <!-- Admin Name -->
             <TextView
                 android:id="@+id/adminNameTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
                 android:fontFamily="@font/poppinsmedium"
                 android:text="Admin Name"
-                android:textColor="#FFFFFF"
+                android:textColor="#000000"
                 android:textSize="18sp" />
 
-            <!-- Admin name -->
+            <!-- Admin Role -->
             <TextView
+                android:id="@+id/adminRoleTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
                 android:fontFamily="@font/poppinsmedium"
-                android:text=" - Administrator"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp" />
+                android:text="Citizen Report Administrator"
+                android:textColor="#4A4A4A"
+                android:textSize="14sp"
+                android:textStyle="italic" />
+        </LinearLayout>
 
-        </androidx.appcompat.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
-    </FrameLayout>
+    <!-- loading_screen.xml -->
+    <RelativeLayout
+        android:id="@+id/loading_screen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80A0A0A0"
+        android:elevation="15dp"
+        android:gravity="center"
+        android:visibility="gone"> <!-- Set the background to gray with some opacity -->
+
+        <ProgressBar
+            android:id="@+id/loadingProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/reporting_fragment_progress_bar_background"
+            android:indeterminate="true" /> <!-- Use a custom drawable for the progress bar's background -->
+
+    </RelativeLayout>
 
     <!-- activity_chat.xml -->
     <androidx.recyclerview.widget.RecyclerView
@@ -74,18 +97,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/messageInputLayout"
-        android:layout_below="@+id/toolbar"
+        android:layout_below="@+id/horizontalLine"
         android:background="#F5F5F5"
         android:clipToPadding="false"
-        android:padding="16dp" />
+        android:padding="8dp" />
 
     <LinearLayout
         android:id="@+id/messageInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:gravity="center"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:textAlignment="center">
 
         <EditText
             android:id="@+id/messageInput"
@@ -94,16 +119,17 @@
             android:layout_marginEnd="16dp"
             android:layout_weight="1"
             android:background="#FFFFFF"
+            android:fontFamily="@font/poppinsmedium"
             android:hint="Type a message..."
             android:padding="12dp" />
 
-        <Button
+        <ImageView
             android:id="@+id/sendButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            android:text="Send"
-            android:textColor="#FFFFFF" />
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="Send"
+            android:src="@drawable/ic_baseline_send_24" />
+
     </LinearLayout>
 
 </RelativeLayout>

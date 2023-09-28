@@ -23,10 +23,18 @@ public class WebSocketClient {
     private String adminFullName;
     private String IP_ADDRESS = UrlConstants.IP_ADDRESS;
     private Context context; // Add a Context field
-
+    String adminId = "1891944"; // Replace with the actual admin ID
+    int newUserID;
+    public void send(String message) {
+        if (webSocket != null && webSocket.send(message)) {
+            Log.d("WebSocketClient", "Message sent: " + message);
+        } else {
+            Log.e("WebSocketClient", "Failed to send message: " + message);
+        }
+    }
     // Define a message listener interface
     public interface MessageListener {
-        void onMessageReceived(String adminFullName, String sender, String message);
+        void onMessageReceived(String adminFullName, String sender, String message, String adminProfileImageUrl);
     }
 
     public WebSocketClient(Context context) {
@@ -39,7 +47,7 @@ public class WebSocketClient {
         String user_id = sharedPreferences.getString("user_id", "");
         Log.e("HomeActivity", "retrieveUserDetails - User ID:" + user_id);
 
-        int newUserID = 0;
+        newUserID = 0;
         try {
             int userIdAsInt = Integer.parseInt(user_id);
             newUserID = userIdAsInt; // Assign the parsed value to newUserID
@@ -49,7 +57,7 @@ public class WebSocketClient {
             e.printStackTrace();
         }
 
-        String adminId = "1891944"; // Replace with the actual admin ID
+
         Request request = new Request.Builder().url("ws://" + IP_ADDRESS + ":8081?user_id=" + user_id + "&admin_id=" + adminId + "&getUsersMessages=true").build();
 
         // Create a WebSocket listener
@@ -62,33 +70,30 @@ public class WebSocketClient {
 
             @Override
             public void onMessage(WebSocket webSocket, String text) {
-                Log.e("WebSocketClient", "onMessage - Message: " + text);
-
                 try {
-                    JSONArray jsonArray = new JSONArray(text); // Parse the incoming JSON array
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject messageObject = jsonArray.getJSONObject(i);
+                    JSONObject messageObject = new JSONObject(text);
+                    String messageType = messageObject.optString("type", "");
 
-                        // Extract message data from the JSON object
-                        int senderId = messageObject.getInt("sender_id");
-                        String message = messageObject.getString("message");
+                    if ("userMessages".equals(messageType)) {
+                        JSONArray messagesArray = messageObject.optJSONArray("messages");
+                        if (messagesArray != null) {
+                            // Iterate through the array of messages
+                            for (int i = 0; i < messagesArray.length(); i++) {
+                                JSONObject messageData = messagesArray.getJSONObject(i);
 
-                        // Determine the sender's identity based on senderId and receiverId
-                        String senderName = null;
-                        if (senderId == finalNewUserID) {
-                            senderName = "You"; // You are the sender
+                                // Extract message data from the messageData object
+                                int senderId = messageData.getInt("sender_id");
+                                int receiverId = messageData.getInt("receiver_id");
+                                String message = messageData.getString("message");
+                                // Extract other message fields as needed
+                                Log.e("HomeActivity", "retrieveUserDetails - messageData:" + messageData);
+                               handleUserMessages(messageData);
+                            }
                         } else {
-                            // Handle messages sent by the admin
-                            String adminFirstName = messageObject.getString("sender_firstname");
-                            String adminLastName = messageObject.getString("sender_lastname");
-                            adminFullName = adminFirstName + " " + adminLastName;
-                            senderName = "Admin"; // You are the sender
+                            // Handle the case where "messages" field is missing or not an array
                         }
-
-                        if (messageListener != null) {
-                            messageListener.onMessageReceived(adminFullName, senderName, message);
-                        }
-
+                    } else if ("otherMessageType".equals(messageType)) {
+                        // Handle other message types here
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -110,9 +115,34 @@ public class WebSocketClient {
                 // Handle connection failure or errors
             }
         };
-
         // Create a WebSocket connection
         webSocket = client.newWebSocket(request, listener);
+    }
+
+    private void handleUserMessages(JSONObject messageObject) throws JSONException {
+        // Extract message data from the JSON object
+        int senderId = messageObject.getInt("sender_id");
+        int receiverId = messageObject.getInt("receiver_id");
+        String message = messageObject.getString("message");
+        String senderName;
+        String profile_image = null;
+        // Check if the message is intended for the current user
+        if (receiverId == newUserID || senderId == newUserID) {
+            if (senderId == newUserID) {
+                senderName = "You"; // You are the sender
+            } else {
+                // Handle messages sent by the admin
+                String adminFirstName = messageObject.getString("sender_firstname");
+                String adminLastName = messageObject.getString("sender_lastname");
+                profile_image = messageObject.getString("sender_profile_image");
+                adminFullName = adminFirstName + " " + adminLastName;
+                senderName = "Admin"; // Admin is the sender
+            }
+
+            if (messageListener != null) {
+                messageListener.onMessageReceived(adminFullName, senderName, message, profile_image);
+            }
+        }
     }
 
     // Method to close the WebSocket connection
