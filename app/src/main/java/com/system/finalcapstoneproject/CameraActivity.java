@@ -2,22 +2,34 @@ package com.system.finalcapstoneproject;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.hardware.Camera;
+import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.bumptech.glide.Glide;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,7 +39,10 @@ import java.util.Date;
 import java.util.Locale;
 
 public class CameraActivity extends AppCompatActivity implements SurfaceHolder.Callback {
-
+    private LinearLayout snapTipsContainer;
+    private TextView uploadButton;
+    private static final int PERMISSION_REQUEST_CODE = 100;
+    private static final int GALLERY_REQUEST_CODE = 200;
     private Camera camera;
     private SurfaceView surfaceView;
     private SurfaceHolder surfaceHolder;
@@ -52,12 +67,14 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
         captureButton = findViewById(R.id.captureButton);
         zoomSeekBar = findViewById(R.id.zoomSeekBar);
         mFlashIcon = findViewById(R.id.flash_toggle);
+        snapTipsContainer = findViewById(R.id.snapTipsContainer);
         backBtn = findViewById(R.id.back_toggle);
-
+        uploadButton = findViewById(R.id.uploadButton);
         surfaceHolder = surfaceView.getHolder();
         surfaceHolder.addCallback(this);
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-
+        // Call this method to show the instructions dialog
+        showInstructionsDialog();
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,6 +94,25 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
             @Override
             public void onClick(View v) {
                 toggleFlashState();
+            }
+        });
+
+        uploadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(CameraActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(CameraActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(intent, GALLERY_REQUEST_CODE);
+                }
+            }
+        });
+
+        snapTipsContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showInstructionsDialog();
             }
         });
 
@@ -131,6 +167,29 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
             }
         });
     }
+
+    private void showInstructionsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.instructions_dialog, null);
+
+        TextView instructionsTextView = dialogView.findViewById(R.id.instructionsTextView);
+        Button closeButton = dialogView.findViewById(R.id.closeButton);
+
+        builder.setView(dialogView);
+        final AlertDialog dialog = builder.create();
+
+        // Set an OnClickListener for the Close button to dismiss the dialog
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
+
     private void toggleFlashState() {
         if (mFlashState == FLASH_STATE_OFF) {
             mFlashState = FLASH_STATE_ON;
@@ -198,6 +257,10 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
             try {
                 FileOutputStream fos = new FileOutputStream(pictureFile);
                 fos.write(data);
+
+                // Set the image's orientation in the EXIF metadata
+                setOrientation(pictureFile);
+
                 if (pictureFile != null) {
                     Log.d(TAG, "pictureFile not empty");
                     // Send the result back to the calling activity
@@ -208,7 +271,6 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
                 }
                 fos.close();
                 Toast.makeText(CameraActivity.this, "Image saved", Toast.LENGTH_SHORT).show();
-
             } catch (IOException e) {
                 Log.d(TAG, "Error accessing file: " + e.getMessage());
                 Toast.makeText(CameraActivity.this, "Error saving image", Toast.LENGTH_SHORT).show();
@@ -218,7 +280,6 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
         }
     };
 
-
     private File getOutputMediaFile() {
         // Check that the device has a mounted external storage
         if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -226,7 +287,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
         }
 
         // Set the directory for the image file
-        File mediaStorageDir = new File(Environment.getExternalStorageDirectory() + File.separator + Environment.DIRECTORY_DOWNLOADS, "MyCameraApp");
+        File mediaStorageDir = new File(Environment.getExternalStorageDirectory() + File.separator + Environment.DIRECTORY_DOWNLOADS, "Recyclearn");
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
                 Log.d(TAG, "Failed to create directory.");
@@ -236,11 +297,41 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
 
         // Get the timestamp for the image filename
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String fileName = "IMG_" + timeStamp + ".jpg";
+        String fileName = "Recyclearn_" + timeStamp + ".jpg";
 
         // Create the image file
         File mediaFile = new File(mediaStorageDir.getPath() + File.separator + fileName);
         return mediaFile;
+    }
+
+    private void setOrientation(File file) {
+        try {
+            ExifInterface exif = new ExifInterface(file.getAbsolutePath());
+            int rotation = 0;
+            Camera.CameraInfo info = new Camera.CameraInfo();
+            Camera.getCameraInfo(cameraId, info);
+
+            // Retrieve the device's orientation and set the appropriate EXIF orientation tag
+            int orientation = getResources().getConfiguration().orientation;
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                    rotation = 270;
+                } else {
+                    rotation = 90;
+                }
+            } else if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+                if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                    rotation = 0;
+                } else {
+                    rotation = 180;
+                }
+            }
+
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(rotation));
+            exif.saveAttributes();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -344,6 +435,22 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     protected void onPause() {
         super.onPause();
         releaseCamera();
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == GALLERY_REQUEST_CODE) {
+                Uri selectedImageUri = data.getData();
+                if (selectedImageUri != null) {
+                    Log.d("Image:", "Image from gallery not empty");
+                } else Log.d("Image:", "Image from gallery empty");
+
+                Intent intent = new Intent(CameraActivity.this, ImageProcessingActivity.class);
+                intent.putExtra("imageUri", selectedImageUri.toString());
+                startActivity(intent);
+            }
+        }
     }
 
 }

@@ -94,7 +94,7 @@ public class Step3Fragment extends Fragment {
     private List<String> imageUrls = new ArrayList<>();
     private boolean dataFetched = false;
     private ProgressBar progressBar;
-
+    private RelativeLayout loadingProgressBar;
     public void setUserData(UserData userData) {
         this.userData = userData;
     }
@@ -120,7 +120,7 @@ public class Step3Fragment extends Fragment {
         emailEditText = view.findViewById(R.id.editTextEmail);
         phoneEditText = view.findViewById(R.id.editTextPhone);
         nextButton = view.findViewById(R.id.nextButton);
-
+        loadingProgressBar = view.findViewById(R.id.loading_screen);
         String passed_user_id = userData.getUserId();
         Log.e("HomeActivity", "retrieveUserDetails - User ID:" + passed_user_id);
 
@@ -335,12 +335,20 @@ public class Step3Fragment extends Fragment {
             @Override
             public void onClick(View v) {
                 try {
+                    // Change the text color of the Cancel button
+                    btnCancelReport.setTextColor(getResources().getColor(R.color.disabled_color)); // Replace "newColor" with the desired color resource
+
+                    // Disable the Cancel button (optional)
+                    btnCancelReport.setEnabled(false);
+                    backButtonToF3.setEnabled(false);
+                    backButtonToF1.setEnabled(false);
                     sendReport();
                 } catch (ParseException e) {
                     throw new RuntimeException(e);
                 }
             }
         });
+
         imageUrls = userData.getSelectedImageUrls();
         summaryDialog.show();
     }
@@ -484,8 +492,7 @@ public class Step3Fragment extends Fragment {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(requireContext(), "Crime reported successfully", Toast.LENGTH_SHORT).show();
-                                summaryDialog.dismiss();
+                                Toast.makeText(requireContext(), "Uploading all the images. Please wait...", Toast.LENGTH_SHORT).show();
                             }
                         });
                     } else {
@@ -532,7 +539,8 @@ public class Step3Fragment extends Fragment {
                             @Override
                             public void run() {
                                 if (response.equals("success")) {
-                                    Toast.makeText(requireContext(), "All images are successfully uploaded", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(requireContext(), "All evidences are successfully uploaded", Toast.LENGTH_SHORT).show();
+                                    summaryDialog.dismiss();
                                     clearForm();
                                 } else {
                                     Toast.makeText(requireContext(), "Some images failed to upload", Toast.LENGTH_SHORT).show();
@@ -555,7 +563,7 @@ public class Step3Fragment extends Fragment {
                         try {
                             Bitmap imageBitmap = getBitmapFromUri(Uri.parse(imageUrl));
                             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                            imageBitmap.compress(Bitmap.CompressFormat.WEBP, 10, baos);
                             byte[] imageData = baos.toByteArray();
 
                             String encodedImageData = Base64.encodeToString(imageData, Base64.DEFAULT);

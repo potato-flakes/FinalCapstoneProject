@@ -1,103 +1,187 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/mainContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context=".MainActivity">
+        android:elevation="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <!-- Existing code... -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="300dp">
+
+            <!-- Header Image -->
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0.9"
+                android:elevation="1dp"
+                android:scaleType="centerCrop" />
+
+            <!-- Overlay color -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0.7"
+                android:background="@color/colorPrimary"
+                android:elevation="2dp" /> <!-- Set the desired opacity (0.0 to 1.0) -->
+
+            <!-- Toolbar for back button and notification icon -->
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_gravity="top"
+                android:elevation="3dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp">
+
+                <!-- Back button -->
+                <ImageButton
+                    android:id="@+id/backButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:elevation="11dp"
+                    android:src="@drawable/ic_back_left_arrow" />
+
+            </androidx.appcompat.widget.Toolbar>
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:elevation="2dp"
+                android:layout_width="match_parent"
+                android:scaleType="centerCrop"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true" />
+
+        </FrameLayout>
+
 
         <RelativeLayout
-            android:id="@+id/back_container"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginLeft="20dp"
-            android:padding="1dp"
-            android:elevation="1dp"
-            android:background="@drawable/back_button_background">
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="-30dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/reporting_header_progress_background"
+            android:elevation="10dp">
 
-            <ImageButton
-                android:id="@+id/back_toggle"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:background="@android:color/transparent"
-                android:padding="8dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_back" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="5dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:padding="4dp">
+
+                    <TextView
+                        android:id="@+id/result"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginBottom="5dp"
+                        android:fontFamily="@font/poppinsmedium"
+                        android:text="Track your Tutorials"
+                        android:textSize="14dp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/progressLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:fontFamily="@font/poppinsmedium"
+                        android:text="Here's the recycled products available with this bottle"
+                        android:textColor="@color/disabled_color"
+                        android:textSize="9dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
         </RelativeLayout>
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="300sp"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="10sp" />
+    </LinearLayout>
 
-        <TextView
-            android:id="@+id/result"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/poppinsbold"
-            android:layout_below="@+id/imageView"
-            android:layout_centerHorizontal="true"
-            android:text=""
-            android:textColor="#404040"
-            android:textSize="20sp" />
+    <RelativeLayout
+        android:id="@+id/loading_screen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80A0A0A0"
+        android:elevation="15dp"
+        android:gravity="center"
+        android:visibility="gone"> <!-- Set the background to gray with some opacity -->
 
-        <LinearLayout
-            android:id="@+id/confidencesTextContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/result"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="30sp"
-            android:paddingLeft="16dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/confidencesText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppinsmedium"
-                android:text="Prediction: "
-                android:textColor="#000"
-                android:textSize="15sp" />
-
-            <TextView
-                android:id="@+id/confidence"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:fontFamily="@font/poppinsmedium"
-                android:textColor="#000"
-                android:textSize="15sp" />
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:id="@+id/tutorials_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/confidencesTextContainer"
-            android:layout_centerHorizontal="true"
-            android:padding="16dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tutorial"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppinsmedium"
-                android:text="" />
-
-        </LinearLayout>
+        <pl.droidsonroids.gif.GifImageView
+            android:id="@+id/loadingImageView"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center"
+            android:src="@drawable/progress_logo" />
 
     </RelativeLayout>
-</ScrollView>
+
+    <LinearLayout
+        android:id="@+id/searchBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/mainContainer"
+        android:background="@drawable/reporting_search_button_background"
+        android:padding="10dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <AutoCompleteTextView
+            android:id="@+id/searchEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:layout_marginStart="10dp"
+            android:hint="Search tutorial here"
+            android:inputType="text"
+            android:fontFamily="@font/poppinsmedium"
+            style="@style/SearchEditTextStyle" />
+
+
+        <ImageButton
+            android:id="@+id/searchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/ic_search_edittext" />
+
+    </LinearLayout>
+    <!-- RecyclerView for Reports -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="10dp"
+        app:layout_constraintBottom_toBottomOf="@id/parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/searchBarLayout"
+        app:layout_constraintVertical_bias="1.0" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

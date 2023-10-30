@@ -131,15 +131,6 @@
                 android:layout_marginBottom="5dp"
                 android:padding="8dp" />
 
-            <ImageButton
-                android:id="@+id/enableDraggingButton"
-                android:layout_alignParentEnd="true"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_below="@id/setLocationManuallyButton"
-                android:src="@drawable/ic_move"
-                android:padding="8dp" />
-
         </RelativeLayout>
 
         <Button

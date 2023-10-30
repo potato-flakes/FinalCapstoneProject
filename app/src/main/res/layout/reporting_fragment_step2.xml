@@ -678,14 +678,14 @@
 
                         <pl.droidsonroids.gif.GifImageView
                             android:id="@+id/loadingImageView"
-                            android:layout_width="100dp"
-                            android:layout_height="100dp"
+                            android:layout_width="70dp"
+                            android:layout_height="70dp"
                             android:layout_alignParentStart="true"
                             android:layout_alignParentTop="true"
                             android:layout_alignParentEnd="true"
                             android:layout_alignParentBottom="true"
                             android:layout_gravity="center"
-                            android:src="@drawable/reporting_loading_gif"
+                            android:src="@drawable/progress_logo"
                             android:visibility="gone" />
 
                     </FrameLayout>
@@ -768,12 +768,24 @@
                     android:text="Can you shortly describe what happened?"
                     android:textSize="15sp" />
 
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <ImageView
+                    android:id="@+id/crimeDescriptionErrorImageView"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="Date Icon"
+                    android:src="@drawable/ic_error"
+                    android:visibility="gone" />
+
             </LinearLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
                 android:background="@drawable/reporting_date_unselected_button_background">
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -807,8 +819,8 @@
                     android:layout_marginBottom="10dp"
                     android:background="@drawable/reporting_button_rounded_background"
                     android:paddingStart="2dp"
-                    android:paddingTop="2dp"
-                    android:paddingEnd="2dp"
+                    android:paddingTop="1dp"
+                    android:paddingEnd="1dp"
                     android:paddingBottom="2dp"
                     android:text="Generate"
                     android:textColor="@color/white"
@@ -830,11 +842,18 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/crimeDescriptionTextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            </com.google.android.material.textfield.TextInputLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
                 android:gravity="center_vertical"
+                android:layout_marginTop="10dp"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -851,12 +870,31 @@
                     android:text="Evidences"
                     android:textSize="15sp" />
 
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <ImageView
+                    android:id="@+id/evidenceErrorImageView"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="Date Icon"
+                    android:src="@drawable/ic_error"
+                    android:visibility="gone" />
+
             </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Reminder: Please ensure that the evidence is clear, accurate, and the relevant area or scene is visible in the image"
+                android:textSize="12sp" />
 
             <HorizontalScrollView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp">
+                android:layout_height="wrap_content">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -913,12 +951,18 @@
                 </LinearLayout>
             </HorizontalScrollView>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/evidenceTextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
+            </com.google.android.material.textfield.TextInputLayout>
 
             <Button
                 android:id="@+id/nextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:background="@drawable/reporting_button_rounded_background"
                 android:text="Next"
                 android:textColor="@color/white" />

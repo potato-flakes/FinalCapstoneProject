@@ -7,23 +7,37 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.icu.text.SimpleDateFormat;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.squareup.picasso.Picasso;
 import com.system.finalcapstoneproject.ProfileActivity;
 import com.system.finalcapstoneproject.R;
 import com.system.finalcapstoneproject.UrlConstants;
@@ -39,10 +53,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Locale;
+import java.util.Map;
 
 public class ReportActivity extends AppCompatActivity {
     private RelativeLayout chat_button;
@@ -65,6 +83,23 @@ public class ReportActivity extends AppCompatActivity {
     private String user_id;
     private ImageButton backButton;
     private NotificationWebSocketClient notificationWebSocketClient;
+    private RelativeLayout loadingProgressBar;
+    private TextView reportIDTextView;
+    private TextView typeOfCrimeTextView;
+    private TextView dateOfCrimeTextView;
+    private TextView suspectOfCrimeTextView;
+    private TextView evidencesOfCrimeTextView;
+    private EditText descOfCrimeEditText;
+    private TextView nameTextView;
+    private TextView sexTextView;
+    private TextView bdayTextView;
+    private TextView phoneTextView;
+    private TextView emailTextView;
+    private EditText firstNameEditText;
+    private EditText lastNameEditText;
+    private EditText emailEditText;
+    private EditText phoneEditText;
+    private LinearLayout imageContainer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +121,8 @@ public class ReportActivity extends AppCompatActivity {
         noApprovedReportsLayout = findViewById(R.id.noApprovedReportsLayout);
         noDeclinedReportsLayout = findViewById(R.id.noDeclinedReportsLayout);
         noUnderInvestigationReportsLayout = findViewById(R.id.noUnderInvestigationReportsLayout);
+        loadingProgressBar = findViewById(R.id.loading_screen);
+        loadingProgressBar.setVisibility(View.VISIBLE); // Show the progress bar
         backButton = findViewById(R.id.backButton);
 
         SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
@@ -97,29 +134,6 @@ public class ReportActivity extends AppCompatActivity {
         approvedButton.setBackgroundResource(R.drawable.button_background_approved);
         declinedButton.setBackgroundResource(R.drawable.button_background_declined);
         onProcessButton.setBackgroundResource(R.drawable.button_background_under_investigation);
-
-        notificationWebSocketClient = new NotificationWebSocketClient(this);
-
-        notificationWebSocketClient.setNotificationListener(new NotificationWebSocketClient.NotificationListener() {
-            @Override
-            public void onNotificationReceived(String notificationText) {
-
-                try {
-                    JSONObject notificationJson = new JSONObject(notificationText);
-                    String messageType = notificationJson.getString("type");
-                    Log.e("HomeActivity", "retrieveUserDetails - notificationJson:" + notificationJson);
-                    // Check if the received message is a notification
-                    if ("userNotification".equals(messageType)) {
-                        int newMessagesCount = notificationJson.getInt("newUserMessageCount");
-
-                        // Update the notificationBadge with the newMessagesCount
-                        updateNotificationBadge(newMessagesCount);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -198,14 +212,13 @@ public class ReportActivity extends AppCompatActivity {
             }
         });
 
-        // Set item click listener
+        // Set item click listener for the reportAdapter
         reportAdapter.setOnItemClickListener(new ReportAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                Log.d("Report Adapter", "A report was clicked"); // Log the image URL
                 // Handle item click here
-                // Start a new activity to display the report details
-                // Pass the report ID or other identifier as an intent extra
+                // Start a new method to show the report details summary dialog
+                showReportDetailsSummary(position);
             }
         });
         chat_button.setOnClickListener(new View.OnClickListener() {
@@ -296,16 +309,39 @@ public class ReportActivity extends AppCompatActivity {
         String firstname = sharedPreferences.getString("firstname", "");
         Log.e("HomeActivity", "retrieveUserDetails - Firstname:" + firstname);
         reportUserName.setText(Html.fromHtml("Hello, " + firstname + "!"));
+        checkUserBanStatus(user_id);
     }
 
-    private void updateNotificationBadge(int newMessagesCount) {
-        // Assuming you have a reference to the notificationBadge TextView
-        TextView notificationBadge = findViewById(R.id.notification_badge);
+    private void showReportDetailsSummary(int position) {
+        // Get the report at the clicked position
+        Report report = reportList.get(position);
 
-        // Update the notificationBadge with the newMessagesCount
-        notificationBadge.setText(String.valueOf(newMessagesCount));
+        // Extract the report_id from the report object
+        String reportId = report.getReportId();
+
+        // Create and configure the summary dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.view_report_dialog_summary, null);
+        builder.setView(dialogView);
+
+        // Populate the dialog with report details
+        reportIDTextView = dialogView.findViewById(R.id.reportIDTextView);
+        typeOfCrimeTextView = dialogView.findViewById(R.id.typeOfCrimeTextView);
+        dateOfCrimeTextView = dialogView.findViewById(R.id.dateOfCrimeTextView);
+        suspectOfCrimeTextView = dialogView.findViewById(R.id.suspectOfCrimeTextView);
+        descOfCrimeEditText = dialogView.findViewById(R.id.descOfCrimeEditText);
+        nameTextView = dialogView.findViewById(R.id.nameTextView);
+        sexTextView = dialogView.findViewById(R.id.sexTextView);
+        phoneTextView = dialogView.findViewById(R.id.phoneTextView);
+        emailTextView = dialogView.findViewById(R.id.emailTextView);
+        imageContainer = dialogView.findViewById(R.id.imageLayout);
+        retrieveReportDetailsFromServer(reportId);
+        Log.d("JSON Responsssssse", reportId);
+        // Show the dialog
+        AlertDialog summaryDialog = builder.create();
+        summaryDialog.show();
     }
-
 
     @SuppressLint("StaticFieldLeak")
     private void deleteReportFromDatabase(final String report_id) {
@@ -452,64 +488,81 @@ public class ReportActivity extends AppCompatActivity {
         Log.e("", "" + passed_status);
         try {
             JSONArray jsonArray = new JSONArray(response);
-                noReportsLayout.setVisibility(View.GONE);
-                noApprovedReportsLayout.setVisibility(View.GONE);
-                noDeclinedReportsLayout.setVisibility(View.GONE);
-                noUnderInvestigationReportsLayout.setVisibility(View.GONE);
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+            Log.e("ReportActivty", "parseReportResponse - Response String: " + jsonArray);
+            noReportsLayout.setVisibility(View.GONE);
+            noApprovedReportsLayout.setVisibility(View.GONE);
+            noDeclinedReportsLayout.setVisibility(View.GONE);
+            noUnderInvestigationReportsLayout.setVisibility(View.GONE);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                    String report_id = jsonObject.getString("report_id"); // Correctly extract the report_id
-                    String user_id = jsonObject.getString("user_id"); // Use "id" instead of "reportId"
-                    String crime_type = jsonObject.getString("crime_type"); // Use "id" instead of "reportId"
-                    String crime_person = jsonObject.getString("crime_person"); // Use "id" instead of "reportId"
-                    String crime_location = jsonObject.getString("crime_location");
-                    String crime_date = jsonObject.getString("crime_date");
-                    String crime_description = jsonObject.getString("crime_description");
-                    String crime_time = jsonObject.getString("crime_time");
-                    String crime_barangay = jsonObject.getString("crime_barangay");
-                    String crime_user_name = jsonObject.getString("crime_user_name");
-                    String crime_user_sex = jsonObject.getString("crime_user_sex");
-                    String crime_user_phone = jsonObject.getString("crime_user_phone");
-                    String crime_user_email = jsonObject.getString("crime_user_email");
-                    String report_date = jsonObject.getString("report_date");
-                    String isUseCurrentLocation = jsonObject.getString("isUseCurrentLocation");
-                    String isIdentified = jsonObject.getString("isIdentified");
-                    String status = jsonObject.getString("status");
-                    String reward_claimed = jsonObject.getString("reward_claimed");
+                String report_id = jsonObject.getString("report_id"); // Correctly extract the report_id
+                String user_id = jsonObject.getString("user_id"); // Use "id" instead of "reportId"
+                String crime_type = jsonObject.getString("crime_type"); // Use "id" instead of "reportId"
+                String crime_person = jsonObject.getString("crime_person"); // Use "id" instead of "reportId"
+                String crime_location = jsonObject.getString("crime_location");
+                String crime_date = jsonObject.getString("crime_date");
+                String crime_description = jsonObject.getString("crime_description");
+                String crime_time = jsonObject.getString("crime_time");
+                String crime_barangay = jsonObject.getString("crime_barangay");
+                String crime_user_name = jsonObject.getString("crime_user_name");
+                String crime_user_sex = jsonObject.getString("crime_user_sex");
+                String crime_user_phone = jsonObject.getString("crime_user_phone");
+                String crime_user_email = jsonObject.getString("crime_user_email");
+                String report_date = jsonObject.getString("report_date");
+                String isUseCurrentLocation = jsonObject.getString("isUseCurrentLocation");
+                String isIdentified = jsonObject.getString("isIdentified");
+                String status = jsonObject.getString("status");
+                String reward_claimed = jsonObject.getString("reward_claimed");
 
-                    Report report = new Report(report_id, user_id, crime_type, crime_person, crime_location, crime_date, crime_description, crime_time, crime_barangay, crime_user_name,
-                            crime_user_sex, crime_user_phone, crime_user_email, report_date, isUseCurrentLocation, isIdentified, status, reward_claimed);
-
-                    reportList.add(report);
+                if (jsonObject.has("imagePaths")) {
+                    Log.d("Retrieved Images: ", "There are images"); // Debug log to check the JSON response
+                    // Retrieve the image paths associated with the report ID
+                    JSONArray imagePathsArray = jsonObject.getJSONArray("imagePaths");
+                    for (int j = 0; j < imagePathsArray.length(); j++) {
+                        String imagePath = imagePathsArray.getString(j);
+                        String imageUrl = UrlConstants.GET_REPORT_IMAGES + imagePath; // Modify the URL as per your server setup
+                        Log.d("Retrieved Images: ", imageUrl); // Debug log to check the JSON response
+                    }
                 }
 
-                // Reverse the order of the reportList to display newest at the top
-                Collections.reverse(reportList);
+                Report report = new Report(report_id, user_id, crime_type, crime_person, crime_location, crime_date, crime_description, crime_time, crime_barangay, crime_user_name,
+                        crime_user_sex, crime_user_phone, crime_user_email, report_date, isUseCurrentLocation, isIdentified, status, reward_claimed);
+                loadingProgressBar.setVisibility(View.GONE); // Show the progress bar
+                reportList.add(report);
+            }
 
-                reportAdapter.notifyDataSetChanged();
+            // Reverse the order of the reportList to display newest at the top
+            Collections.reverse(reportList);
+
+            reportAdapter.notifyDataSetChanged();
         } catch (JSONException e) {
+            loadingProgressBar.setVisibility(View.GONE); // Show the progress bar
             Log.e("ReportActivty", "parseReportResponse - Response String: " + response);
             if ("".equals(passed_status)) { // Use .equals() for string comparison
                 noReportsLayout.setVisibility(View.VISIBLE);
                 noApprovedReportsLayout.setVisibility(View.GONE);
                 noDeclinedReportsLayout.setVisibility(View.GONE);
                 noUnderInvestigationReportsLayout.setVisibility(View.GONE);
+                loadingProgressBar.setVisibility(View.GONE); // Show the progress bar
             } else if ("Approved".equals(passed_status)) {
                 noApprovedReportsLayout.setVisibility(View.VISIBLE);
                 noReportsLayout.setVisibility(View.GONE);
                 noDeclinedReportsLayout.setVisibility(View.GONE);
                 noUnderInvestigationReportsLayout.setVisibility(View.GONE);
+                loadingProgressBar.setVisibility(View.GONE); // Show the progress bar
             } else if ("Declined".equals(passed_status)) {
                 noDeclinedReportsLayout.setVisibility(View.VISIBLE);
                 noReportsLayout.setVisibility(View.GONE);
                 noApprovedReportsLayout.setVisibility(View.GONE);
                 noUnderInvestigationReportsLayout.setVisibility(View.GONE);
-            } else if ("OnProcess".equals(passed_status)) {
+                loadingProgressBar.setVisibility(View.GONE); // Show the progress bar
+            } else if ("Ongoing".equals(passed_status)) {
                 noUnderInvestigationReportsLayout.setVisibility(View.VISIBLE);
                 noReportsLayout.setVisibility(View.GONE);
                 noApprovedReportsLayout.setVisibility(View.GONE);
                 noDeclinedReportsLayout.setVisibility(View.GONE);
+                loadingProgressBar.setVisibility(View.GONE); // Show the progress bar
             }
             e.printStackTrace();
         }
@@ -520,6 +573,7 @@ public class ReportActivity extends AppCompatActivity {
         // Implement code to fetch all reports for the user
         // Update the reportList and notify the adapter
         Log.e("ReportActivty", "fetchAllReports - User ID: " + userId);
+        loadingProgressBar.setVisibility(View.VISIBLE); // Show the progress bar
         fetchReports(userId, "");
     }
 
@@ -528,6 +582,7 @@ public class ReportActivity extends AppCompatActivity {
         // Implement code to fetch approved reports for the user
         // Update the reportList and notify the adapter
         Log.e("ReportActivty", "fetchApprovedReports - User ID: " + userId);
+        loadingProgressBar.setVisibility(View.VISIBLE); // Show the progress bar
         fetchReports(userId, "Approved");
     }
 
@@ -536,6 +591,7 @@ public class ReportActivity extends AppCompatActivity {
         // Implement code to fetch declined reports for the user
         // Update the reportList and notify the adapter
         Log.e("ReportActivty", "fetchDeclinedReports - User ID: " + userId);
+        loadingProgressBar.setVisibility(View.VISIBLE); // Show the progress bar
         fetchReports(userId, "Declined");
     }
 
@@ -544,8 +600,10 @@ public class ReportActivity extends AppCompatActivity {
         // Implement code to fetch reports that are on process for the user
         // Update the reportList and notify the adapter
         Log.e("ReportActivty", "fetchOnProcessReports - User ID: " + userId);
-        fetchReports(userId, "OnProcess");
+        loadingProgressBar.setVisibility(View.VISIBLE); // Show the progress bar
+        fetchReports(userId, "Ongoing");
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -558,4 +616,347 @@ public class ReportActivity extends AppCompatActivity {
             notificationWebSocketClient.close();
         }
     }
+
+    private void checkUserBanStatus(String userId) {
+        Log.e("ReportActivity", "checkUserBanStatus - Checking Ban Status for user with USER ID: " + userId);
+
+        // Make an HTTP request to your server to check the user's ban status
+        // Replace "CHECK_BAN_URL" with the actual URL of your server-side script
+        String checkBanUrl = UrlConstants.CHECK_BAN_STATUS;
+
+        // Create a request to check the ban status
+        StringRequest banCheckRequest = new StringRequest(Request.Method.POST, checkBanUrl,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.e("ReportActivity", "checkUserBanStatus - Response: " + response);
+
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            boolean isBanned = jsonResponse.getBoolean("isBanned");
+
+                            if (isBanned) {
+                                // User is banned, retrieve ban details
+                                String banReason = jsonResponse.optString("banReason");
+                                String banStartTimestampStr = jsonResponse.optString("banStartTime"); // Correct the field name
+                                String banEndTimestampStr = jsonResponse.optString("banEndTime");     // Correct the field name
+                                Log.e("ReportActivity", "checkUserBanStatus - jsonResponse: " + jsonResponse);
+                                // Check if the date strings are not empty before parsing
+                                if (!TextUtils.isEmpty(banStartTimestampStr) && !TextUtils.isEmpty(banEndTimestampStr)) {
+                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+                                    Date banStartTimestamp = sdf.parse(banStartTimestampStr);
+                                    Date banEndTimestamp = sdf.parse(banEndTimestampStr);
+
+                                    // Get the current date and time
+                                    Date currentDate = new Date();
+                                    Log.e("ReportActivity", "checkUserBanStatus - currentDate: " + currentDate);
+                                    Log.e("ReportActivity", "checkUserBanStatus - banEndTimestamp: " + banEndTimestamp);
+
+                                    // Check if the current date is within the ban period
+                                    if (currentDate.before(banEndTimestamp)) {
+                                        // User is currently banned, show a ban message
+                                        showBanMessage(banReason, banEndTimestamp);
+                                    } else {
+                                        // User was banned in the past but the ban has expired
+                                        // You can handle this case accordingly
+                                        // For example, you might allow the user to continue
+                                        performAllowedAction();
+                                    }
+                                } else {
+                                    // Handle the case where date strings are empty or malformed
+                                    // You can show an error message or take appropriate action
+                                }
+                            } else {
+                                // User is not banned, allow the user to continue
+                                performAllowedAction();
+                            }
+                        } catch (JSONException | ParseException e) {
+                            e.printStackTrace();
+                            // Handle JSON parsing error or date parsing error
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("ReportActivity", "checkUserBanStatus - VolleyError error: " + error);
+                        // Handle the error, e.g., by showing an error message to the user
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("user_id", userId); // Pass the user's ID to check
+                return params;
+            }
+        };
+
+        // Add the request to the Volley request queue to execute it
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(banCheckRequest);
+    }
+
+    private void showBanMessage(String banReason, Date banEndTimestamp) {
+        // Calculate the remaining time until the ban ends
+        long banEndTimeMillis = banEndTimestamp.getTime();
+
+        // Create a dialog builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("You are Banned");
+
+        // Inflate the custom layout for the dialog
+        View customLayout = getLayoutInflater().inflate(R.layout.custom_ban_dialog, null);
+        builder.setView(customLayout);
+
+        // Set the ban reason text in the custom layout
+        TextView banReasonText = customLayout.findViewById(R.id.text_ban_reason);
+        banReasonText.setText("Reason: " + banReason);
+
+        // Set the remaining time text in the custom layout
+        TextView remainingTimeText = customLayout.findViewById(R.id.text_remaining_time);
+
+        // Set the custom "OK" button click listener
+        Button customOkButton = customLayout.findViewById(R.id.custom_ok_button);
+        customOkButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        // Set the custom "Chat Admin" button click listener
+        Button chatAdminButton = customLayout.findViewById(R.id.chat_admin_button);
+        chatAdminButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeChatNotificationSocket();
+                // Open the MainActivity to create a new report
+                Intent intent = new Intent(ReportActivity.this, ChatActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        // Prevent the user from dismissing the dialog
+        builder.setCancelable(false);
+
+        // Show the dialog
+        AlertDialog dialog = builder.show();
+
+        // Create a handler to update the remaining time text every second
+        final Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                long currentTimeMillis = System.currentTimeMillis();
+                long remainingTimeMillis = banEndTimeMillis - currentTimeMillis;
+
+                // Calculate remaining days, hours, minutes, and seconds
+                long days = remainingTimeMillis / (1000 * 60 * 60 * 24);
+                long hours = (remainingTimeMillis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
+                long minutes = (remainingTimeMillis % (1000 * 60 * 60)) / (1000 * 60);
+                long seconds = (remainingTimeMillis % (1000 * 60)) / 1000;
+
+                // Update the remaining time text
+                remainingTimeText.setText("Ban will be lifted in: " + days + " days, " + hours + " hours, " + minutes + " minutes, and " + seconds + " seconds.");
+
+                // Check if the ban has ended and dismiss the dialog
+                if (remainingTimeMillis <= 0) {
+                    dialog.dismiss();
+                    handler.removeCallbacks(this); // Stop the handler
+                } else {
+                    // Schedule the runnable to run again after 1 second
+                    handler.postDelayed(this, 1000);
+                }
+            }
+        };
+
+        // Start the handler to update the remaining time
+        handler.post(runnable);
+    }
+
+    private void performAllowedAction() {
+        // This method is called when the user is not banned or the ban has expired
+        // You can continue with actions that are allowed for the user
+        // For example, fetching reports
+        fetchReports(user_id, "");
+    }
+
+    private void retrieveReportDetailsFromServer(final String reportId) {
+        Log.d("JSON Response", reportId);
+        @SuppressLint("StaticFieldLeak") AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                // Retrieve the report details from the server using the reportId
+                // Make an HTTP request to the server and parse the response JSON to populate userData
+                Log.e("editReportActivity", "retrieveReportDetailsFromServer - has started"); // Debug log
+                // Example of retrieving report details from the server
+
+                // Perform the HTTP request and retrieve the response
+                String jsonResponse = performHttpRequest(UrlConstants.GET_REPORT_DETAILS + reportId);
+
+                // Log the JSON response
+                Log.d("JSON Response", jsonResponse);
+
+                // Parse the JSON and populate userData
+                try {
+                    JSONObject jsonObject = new JSONObject(jsonResponse);
+                    String report_id = jsonObject.getString("report_id");
+                    String user_id = jsonObject.getString("user_id");
+                    String crime_type = jsonObject.getString("crime_type");
+                    int isIdentified = jsonObject.getInt("isIdentified");
+                    String crime_person = jsonObject.getString("crime_person");
+                    String crime_location = jsonObject.getString("crime_location");
+                    String crime_barangay = jsonObject.getString("crime_barangay");
+                    int isUseCurrentLocation = jsonObject.getInt("isUseCurrentLocation");
+                    String crime_date = jsonObject.getString("crime_date");
+                    String crime_time = jsonObject.getString("crime_time");
+                    Double crime_location_latitude = Double.valueOf(jsonObject.getString("crime_location_latitude"));
+                    Double crime_location_longitude = Double.valueOf(jsonObject.getString("crime_location_longitude"));
+                    String crime_description = jsonObject.getString("crime_description");
+                    String crime_user_name = jsonObject.getString("crime_user_name");
+                    String crime_user_sex = jsonObject.getString("crime_user_sex");
+                    String crime_user_phone = jsonObject.getString("crime_user_phone");
+                    String crime_user_email = jsonObject.getString("crime_user_email");
+                    String report_date = jsonObject.getString("report_date");
+
+                    if (jsonObject.has("imagePaths")) {
+
+                        // Retrieve the image paths associated with the report ID
+                        JSONArray imagePathsArray = jsonObject.getJSONArray("imagePaths");
+                        for (int i = 0; i < imagePathsArray.length(); i++) {
+                            String imagePath = imagePathsArray.getString(i);
+                            String imageUrl = UrlConstants.GET_REPORT_IMAGES + imagePath; // Modify the URL as per your server setup
+                            displayImages(Collections.singletonList(imageUrl));
+                            Log.d("Retrieved Images: ", imagePath); // Debug log to check the JSON response
+                        }
+
+                    } else {
+                        Log.e("JSON", "No value for imagePaths key");
+                    }
+                    reportIDTextView.setText("Report ID: " + report_id);
+                    typeOfCrimeTextView.setText(crime_type);
+                    dateOfCrimeTextView.setText(crime_date);
+                    suspectOfCrimeTextView.setText(crime_person);
+                    descOfCrimeEditText.setText(crime_description);
+                    nameTextView.setText(crime_user_name);
+                    sexTextView.setText(crime_user_sex);
+                    phoneTextView.setText(crime_user_phone);
+                    emailTextView.setText(crime_user_email);
+                    // Set other views with report details
+
+                    // Set up dialog buttons or actions as needed
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e("JSON", "Error parsing JSON: " + e.getMessage());
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                // Handle any post-execution tasks here, if needed
+                // For example, you can update the UI with the retrieved data
+            }
+        };
+
+        task.execute();
+    }
+
+    private String performHttpRequest(String apiUrl) {
+        // Perform the HTTP request to the server and retrieve the response
+        // You can use a networking library like Retrofit, Volley, or OkHttp to simplify the HTTP request process
+        // In this example, we'll use HttpURLConnection for simplicity
+
+        StringBuilder response = new StringBuilder();
+        HttpURLConnection connection = null;
+        BufferedReader reader = null;
+
+        try {
+            URL url = new URL(apiUrl);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            InputStream inputStream = connection.getInputStream();
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("editReport_activity", "performHttpRequest - Server Response: " + response);
+            Toast.makeText(ReportActivity.this, "Failed to retrieve report details", Toast.LENGTH_SHORT).show();
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return response.toString();
+    }
+    private void displayImages(List<String> imageUrl) {
+        Log.d("MainActivity", "displayImages - has started");
+        Log.e("EditReportStep2Fragment", "displayImages - Images from the Database: " + imageUrl);
+
+        // Use "this" to access the current activity's context
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<String> newImageUrls = new ArrayList<>(); // Create a list for new image URLs
+
+                for (final String imageUrl : imageUrl) {
+                    // Create a new FrameLayout to hold the ImageView and delete button
+                    FrameLayout imageLayout = new FrameLayout(ReportActivity.this); // Replace "MainActivity" with your activity's name
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    layoutParams.setMargins(
+                            getResources().getDimensionPixelSize(R.dimen.image_left_margin),
+                            getResources().getDimensionPixelSize(R.dimen.image_top_margin),
+                            getResources().getDimensionPixelSize(R.dimen.image_right_margin),
+                            getResources().getDimensionPixelSize(R.dimen.image_bot_margin)
+                    );
+                    imageLayout.setLayoutParams(layoutParams);
+
+                    // Create a new ImageView for the image
+                    ImageView imageView = new ImageView(ReportActivity.this); // Replace "MainActivity" with your activity's name
+                    FrameLayout.LayoutParams imageParams = new FrameLayout.LayoutParams(
+                            getResources().getDimensionPixelSize(R.dimen.image_width),
+                            getResources().getDimensionPixelSize(R.dimen.image_height)
+                    );
+                    imageView.setLayoutParams(imageParams);
+
+                    // Set ScaleType to FIT_XY
+                    imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+
+                    // Load the image using your preferred library (e.g., Picasso, Glide, etc.)
+                    // Example with Picasso:
+                    Picasso.get()
+                            .load(imageUrl)
+                            .fit()
+                            .centerCrop()
+                            .into(imageView);
+
+
+                    // Add the ImageView and delete button to the imageLayout
+                    imageLayout.addView(imageView);
+                    // Add the ImageView (delete button) to the imageLayout
+                    // Add the imageLayout to the imageContainer
+                    imageContainer.addView(imageLayout);
+
+                }
+            }
+        });
+    }
+
 }

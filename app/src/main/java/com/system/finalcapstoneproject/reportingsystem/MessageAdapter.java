@@ -79,6 +79,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                 String imageUrl = UrlConstants.GET_USER_PROFILE_IMAGES + message.getSenderProfileImageUrl();
                 Picasso.get().load(imageUrl).into(senderProfileImageView);
                 senderProfileImageView.setVisibility(View.VISIBLE); // Show sender's profile image for admin messages
+
+                layoutParams.setMarginEnd(16); // Adjust the right margin as needed
+                messageContentTextView.setLayoutParams(layoutParams);
             }
         }
 

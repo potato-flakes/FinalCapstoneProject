@@ -17,6 +17,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -176,80 +178,113 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private void saveUserDetails() throws ParseException {
         String newPassword = Objects.requireNonNull(textInputEditTextPassword.getText()).toString().trim();
         Log.e("Step3Fragment", "sendReport - newFirstName: " + newPassword);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // Declare response variable outside the try-catch block
-                String response = "";
-                try {
-                    // Create JSON object with crime data
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("user_id", user_id);
-                    jsonObject.put("newPassword", newPassword);
 
-                    Log.d("ProfileActivity", "reportCrime - Data to be passed: " + jsonObject);
+        // Update password in Firebase Authentication
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            user.updatePassword(newPassword)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            // Password updated successfully in Firebase Authentication
+                            Log.d("ChangePasswordActivity", "Password updated successfully in Firebase");
 
-                    // Send the data to the PHP API and get the response
-                    URL url = new URL(UrlConstants.UPDATE_PASSWORD_URL);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("POST");
-                    connection.setRequestProperty("Content-Type", "application/json");
-                    connection.setDoOutput(true);
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // Declare response variable outside the try-catch block
+                                    String response = "";
+                                    try {
+                                        // Create JSON object with crime data
+                                        JSONObject jsonObject = new JSONObject();
+                                        jsonObject.put("user_id", user_id);
+                                        jsonObject.put("newPassword", newPassword);
 
-                    DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-                    outputStream.writeBytes(jsonObject.toString());
-                    outputStream.flush();
-                    outputStream.close();
+                                        Log.d("ProfileActivity", "reportCrime - Data to be passed: " + jsonObject);
 
-                    int responseCode = connection.getResponseCode();
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
-                        // Read the response from the API
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                        StringBuilder responseBuilder = new StringBuilder();
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            responseBuilder.append(line);
-                        }
-                        reader.close();
+                                        // Send the data to the PHP API and get the response
+                                        URL url = new URL(UrlConstants.UPDATE_PASSWORD_URL);
+                                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                                        connection.setRequestMethod("POST");
+                                        connection.setRequestProperty("Content-Type", "application/json");
+                                        connection.setDoOutput(true);
 
-                        // Assign the response to the declared variable
-                        response = responseBuilder.toString();
+                                        DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+                                        outputStream.writeBytes(jsonObject.toString());
+                                        outputStream.flush();
+                                        outputStream.close();
 
-                        // Parse the response as JSON
-                        JSONObject jsonResponse = new JSONObject(response.toString());
-                        Log.d("ProfileActivity", "reportCrime - JSON Response - Data upload: " + jsonResponse);
-                        // Extract the report ID from the response
-                        String message = jsonResponse.getString("message");
-                        Log.d("ProfileActivity", "reportCrime - Retrieved Message from server: " + message);
+                                        int responseCode = connection.getResponseCode();
+                                        if (responseCode == HttpURLConnection.HTTP_OK) {
+                                            // Read the response from the API
+                                            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                                            StringBuilder responseBuilder = new StringBuilder();
+                                            String line;
+                                            while ((line = reader.readLine()) != null) {
+                                                responseBuilder.append(line);
+                                            }
+                                            reader.close();
 
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
+                                            // Assign the response to the declared variable
+                                            response = responseBuilder.toString();
+
+                                            // Parse the response as JSON
+                                            JSONObject jsonResponse = new JSONObject(response.toString());
+                                            Log.d("ProfileActivity", "reportCrime - JSON Response - Data upload: " + jsonResponse);
+                                            // Extract the report ID from the response
+                                            String message = jsonResponse.getString("message");
+                                            Log.d("ProfileActivity", "reportCrime - Retrieved Message from server: " + message);
+
+                                            handler.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(ChangePasswordActivity.this, "Password has been changed", Toast.LENGTH_SHORT).show();
+                                                    finish();
+                                                }
+                                            });
+                                        } else {
+                                            handler.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    // Display an error message
+                                                    Toast.makeText(ChangePasswordActivity.this, "Changing password failed. Please try again later", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                        }
+                                    } catch (IOException | JSONException e) {
+                                        Log.e("ProfileActivity", "reportCrime - Response String: " + response); // Use the declared response variable
+                                        e.printStackTrace();
+                                        handler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(ChangePasswordActivity.this, "Please check your inputs", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+                                }
+                            }).start();
+
+                            // Display a success message to the user
+                            handler.post(() -> {
                                 Toast.makeText(ChangePasswordActivity.this, "Password has been changed", Toast.LENGTH_SHORT).show();
                                 finish();
-                            }
-                        });
-                    } else {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                // Display an error message
+                            });
+                        } else {
+                            // Password update in Firebase Authentication failed
+                            Log.e("ChangePasswordActivity", "Error updating password in Firebase: " + task.getException());
+                            handler.post(() -> {
+                                // Display an error message to the user
                                 Toast.makeText(ChangePasswordActivity.this, "Changing password failed. Please try again later", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                } catch (IOException | JSONException e) {
-                    Log.e("ProfileActivity", "reportCrime - Response String: " + response); // Use the declared response variable
-                    e.printStackTrace();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(ChangePasswordActivity.this, "Please check your inputs", Toast.LENGTH_SHORT).show();
+                            });
                         }
                     });
-                }
-            }
-        }).start();
+        } else {
+            // Firebase user is not authenticated
+            Log.e("ChangePasswordActivity", "Firebase user not authenticated");
+            handler.post(() -> {
+                // Display an error message to the user
+                Toast.makeText(ChangePasswordActivity.this, "Authentication error. Please log in again.", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     private boolean isValidPassword(String password) {

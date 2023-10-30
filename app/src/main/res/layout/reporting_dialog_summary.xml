@@ -172,6 +172,7 @@
                 android:fontFamily="@font/poppinsmedium"
                 android:inputType="none"
                 android:scrollbars="vertical"
+                android:enabled="false"
                 android:textColor="@color/disabled_color"
                 android:textSize="12sp" />
         </TableRow>

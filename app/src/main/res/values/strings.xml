@@ -82,5 +82,5 @@
         <item>Female</item>
         <item>Other</item>
     </string-array>
-
+    <string name="bottle_type_hint">Select a bottle type</string>
 </resources>

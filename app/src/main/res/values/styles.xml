@@ -19,7 +19,7 @@
     </style>
     <style name="CustomDialog" parent="Theme.AppCompat.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:background">@drawable/reporting_back_warning_dialog_background</item> <!-- Replace with your dialog background drawable -->
+        <item name="android:background">@drawable/reporting_button_rounded_background</item> <!-- Replace with your dialog background drawable -->
     </style>
     <style name="PopupMenuStyle" parent="Widget.AppCompat.PopupMenu">
         <item name="android:popupBackground">@drawable/reporting_option_popup_background</item>
@@ -99,6 +99,14 @@
         <item name="android:paddingEnd">16dp</item>
         <item name="android:paddingTop">8dp</item>
         <item name="android:paddingBottom">8dp</item>
+    </style>
+    <style name="CustomSpinnerStyle" parent="Widget.AppCompat.Spinner">
+        <item name="android:background">@drawable/tutorial_spinner_background</item> <!-- Your custom background drawable -->
+    </style>
+
+    <style name="CustomDialogButtonStyle">
+        <item name="android:background">@drawable/reporting_button_rounded_background</item>
+        <item name="android:textColor">#FFFFFF</item> <!-- Change text color as needed -->
     </style>
 
 </resources>

@@ -1,5 +1,6 @@
 package com.system.finalcapstoneproject.reportingsystem;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -43,8 +44,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import android.Manifest;
 
 public class LocationBottomSheetFragment extends BottomSheetDialogFragment {
     private MapView mapView;
@@ -109,17 +108,7 @@ public class LocationBottomSheetFragment extends BottomSheetDialogFragment {
         setLocationAutomaticallyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-             setLocationAutomatically();
-            }
-        });
-
-        ImageButton enableDraggingButton = view.findViewById(R.id.enableDraggingButton);
-        enableDraggingButton.setBackgroundResource(R.drawable.reporting_toggle_button_unselected_background);
-        enableDraggingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Handle button click event
-                Log.d("LocationBottomSheet", "enableDraggingButton clicked");
+                setLocationAutomatically();
             }
         });
 
@@ -303,10 +292,7 @@ public class LocationBottomSheetFragment extends BottomSheetDialogFragment {
         // Retrieve the updated latitude and longitude values
         double passLatitude = latitude;
         double passLongitude = longitude;
-        // Perform validation to check if the location is within Lubao, Pampanga
-        if (isLocationWithinLubao(passLatitude, passLongitude)) {
-            // Notify the listener with the updated location
-        // Notify the listener with the updated location
+
         if (locationSelectionListener != null) {
             userData.setLocationEnabled(false);
             Log.e("LocationBottomSheetFragment", "isLocationEnabled: " + userData.isLocationEnabled());
@@ -315,23 +301,8 @@ public class LocationBottomSheetFragment extends BottomSheetDialogFragment {
             Log.e("LocationBottomSheetFragment", "Updated Longitudes: " + passLongitude);
             dismiss();
         }
-        } else {
-            // Display an error message indicating that the address is outside Lubao, Pampanga
-            Toast.makeText(requireContext(), "Please select an address within Lubao, Pampanga", Toast.LENGTH_SHORT).show();
-        }
     }
 
-    private boolean isLocationWithinLubao(double latitude, double longitude) {
-        // Check if the latitude and longitude fall within the boundaries of Lubao, Pampanga
-        // Replace the condition with the actual latitude and longitude boundaries of Lubao, Pampanga
-        double minLatitude = 13.9243;
-        double maxLatitude = 14.9502;
-        double minLongitude = 120.4595;
-        double maxLongitude = 120.7169;
-
-        return latitude >= minLatitude && latitude <= maxLatitude &&
-                longitude >= minLongitude && longitude <= maxLongitude;
-    }
 
     private void performSearch(String selectedSuggestion) {
         String searchText = searchEditText.getText().toString().trim();

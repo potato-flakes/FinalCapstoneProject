@@ -429,7 +429,7 @@
             android:backgroundTint="#4CAF50"
             android:contentDescription="TODO"
             android:elevation="8dp"
-            android:src="@drawable/ic_camera"
+            android:src="@drawable/ic_camera_scan"
             app:backgroundTint="#4CAF50"
             app:layout_anchor="@+id/app_bar"></com.google.android.material.floatingactionbutton.FloatingActionButton>
 

@@ -16,11 +16,19 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-
+    signingConfigs {
+        release {
+            storeFile file('../../../.android/my-release-key.keystore')
+            storePassword 'android'
+            keyAlias 'my-key-alias'
+            keyPassword 'android'
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -55,4 +63,6 @@ dependencies {
     implementation 'org.osmdroid:osmdroid-android:6.1.8'
     implementation 'com.google.zxing:core:3.4.1'
     implementation 'com.github.yuriy-budiyev:code-scanner:2.3.2'
+    implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
+    implementation("com.google.firebase:firebase-analytics")
 }

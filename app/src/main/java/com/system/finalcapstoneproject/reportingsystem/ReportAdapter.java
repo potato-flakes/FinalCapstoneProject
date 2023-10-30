@@ -91,13 +91,19 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ReportView
             if (report.getReward_claimed().equals("1")) {
                 holder.claimRewardButton.setEnabled(false);
                 holder.claimRewardButton.setText("Reward Claimed");
-            } else if (report.getReward_claimed().equals("2")){
+            } else if (report.getReward_claimed().equals("2")) {
                 holder.claimRewardButton.setEnabled(false);
                 holder.claimRewardButton.setText("Reward Aborted");
             } else {
                 holder.claimRewardButton.setEnabled(true);
                 holder.claimRewardButton.setText("Claim Reward");
             }
+        } else if (report.getReportStatus().equals("Ongoing")) {
+            holder.claimRewardButton.setVisibility(View.GONE);
+            holder.menuButton.setVisibility(View.GONE); // Hide the menuButton for approved reports
+        } else if (report.getReportStatus().equals("Declined")) {
+            holder.claimRewardButton.setVisibility(View.GONE);
+            holder.menuButton.setVisibility(View.GONE); // Hide the menuButton for approved reports
         } else {
             holder.claimRewardButton.setVisibility(View.GONE);
             holder.menuButton.setVisibility(View.VISIBLE); // Show the menuButton for non-approved reports
@@ -219,9 +225,6 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ReportView
                                 editClickListener.onEditClick(position);
                             }
                             return true;
-                        case R.id.menu_follow_up:
-                            // Handle the "Follow-up" menu item click
-                            return true;
                         case R.id.menu_delete:
                             if (onDeleteClickListener != null) {
                                 onDeleteClickListener.onDeleteClick(position);
@@ -260,17 +263,11 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ReportView
                     "User Email: " + report.getCrime_user_email() + "\n" +
                     "User Phone: " + report.getCrime_user_phone() + "\n" +
                     "Report Date: " + report.getReport_date() + "\n" +
-                    "Status: " + report.getStatus() + "\n" +
-                    "Reward: " + calculateReward(report);
+                    "Status: " + report.getStatus() + "\n";
+
         }
 
         // Calculate the reward based on report details
-        private double calculateReward(Report report) {
-            // Add your logic to calculate the reward amount
-            // For example, you can calculate based on the type of report, severity, etc.
-            // Return the calculated reward amount.
-            return 100;
-        }
 
         // Show the QR code to the user (customize this part)
         private void showQRCodeDialog(Bitmap qrCodeBitmap) {

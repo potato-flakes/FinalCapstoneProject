@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "475474387369",
+    "firebase_url": "https://recyclearn-398606-default-rtdb.firebaseio.com",
     "project_id": "recyclearn-398606",
     "storage_bucket": "recyclearn-398606.appspot.com"
   },
@@ -13,6 +14,22 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "475474387369-2sgvsrt3369i3oerg6sj2v0d0m980ot3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.system.finalcapstoneproject",
+            "certificate_hash": "0af1c4543cf069e0246c160c80afc52330b20ca1"
+          }
+        },
+        {
+          "client_id": "475474387369-qeulcpfn7c050d6437qk19f2e4rps30k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.system.finalcapstoneproject",
+            "certificate_hash": "9eb2c1ddf72f3f2f8527c66034bdb63a33977d6c"
+          }
+        },
         {
           "client_id": "475474387369-p8ksspgv7spr0hjbu7gr58p0m236slk4.apps.googleusercontent.com",
           "client_type": 3

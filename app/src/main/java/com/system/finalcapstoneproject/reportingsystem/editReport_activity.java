@@ -77,13 +77,7 @@ public class editReport_activity extends AppCompatActivity {
         loadingView = getLayoutInflater().inflate(R.layout.reporting_loading_screen, containerLayout, false);
         showLoadingScreen();
         // Add a delay before starting the first fragment
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                navigateToNextFragment(new EditReportStep1Fragment());
-                hideLoadingScreen();
-            }
-        }, 1000);
+
     }
 
     public void navigateToNextFragment(Fragment fragment) {
@@ -230,6 +224,7 @@ public class editReport_activity extends AppCompatActivity {
     }
 
     private void retrieveReportDetailsFromServer(final String reportId) {
+
         @SuppressLint("StaticFieldLeak") AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
@@ -256,7 +251,6 @@ public class editReport_activity extends AppCompatActivity {
                     String crime_barangay = jsonObject.getString("crime_barangay");
                     int isUseCurrentLocation = jsonObject.getInt("isUseCurrentLocation");
                     String crime_date = jsonObject.getString("crime_date");
-
                     // Define the date format for the database date
                     SimpleDateFormat databaseDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -389,8 +383,8 @@ public class editReport_activity extends AppCompatActivity {
 
             @Override
             protected void onPostExecute(Void aVoid) {
-                // Handle any post-execution tasks here, if needed
-                // For example, you can update the UI with the retrieved data
+                navigateToNextFragment(new EditReportStep1Fragment());
+                hideLoadingScreen();
             }
         };
 

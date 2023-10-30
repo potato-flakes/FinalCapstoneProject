@@ -45,6 +45,8 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimary</item>
         <!-- Customize your theme here. -->
-        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+
+        <item name="colorControlActivated">@color/colorPrimary</item>
     </style>
+
 </resources>

@@ -56,7 +56,7 @@ public class ChatActivity extends AppCompatActivity {
         RelativeLayout loadingProgressBar = findViewById(R.id.loading_screen);
         loadingProgressBar.setVisibility(View.VISIBLE); // Show the progress bar
 
-        String adminId = "1891944"; // Replace with the actual admin ID
+        String adminId = "6591457"; // Replace with the actual admin ID
 
         // Initialize UI components
         messageInput = findViewById(R.id.messageInput);

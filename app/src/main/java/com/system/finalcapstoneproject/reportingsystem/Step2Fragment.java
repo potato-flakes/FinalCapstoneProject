@@ -1,36 +1,14 @@
 package com.system.finalcapstoneproject.reportingsystem;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.os.Bundle;
-
-import androidx.annotation.AnimatorRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
-import android.os.Looper;
-import android.text.Editable;
-import android.text.InputFilter;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.transition.TransitionManager;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.HorizontalScrollView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.location.Address;
@@ -40,27 +18,45 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.InputFilter;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.AnimatorRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -104,6 +100,8 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     private static final int PICK_IMAGES_REQUEST_CODE = 1;
     private TextInputLayout textInputLayoutPersonName;
     private TextInputLayout barangayTextInputLayout;
+    private TextInputLayout crimeDescriptionTextInputLayout;
+    private TextInputLayout evidenceTextInputLayout;
     private LinearLayout imageContainer;
     private LinearLayout typeOfCrimeLayout;
     private LocationManager locationManager;
@@ -141,6 +139,8 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     private ImageView locationImageView;
     private ImageView barangayErrorImageView;
     private ImageView enterPersonNameErrorImageView;
+    private ImageView crimeDescriptionErrorImageView;
+    private ImageView evidenceErrorImageView;
     private EditText hourEditText;
     private EditText minuteEditText;
     private EditText enterPersonEditTexts;
@@ -233,8 +233,12 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         nextButton = view.findViewById(R.id.nextButton);
         autoGenerateButton = view.findViewById(R.id.autoGenerateButton);
         enterPersonNameErrorImageView = view.findViewById(R.id.enterPersonNameErrorImageView);
+        crimeDescriptionErrorImageView = view.findViewById(R.id.crimeDescriptionErrorImageView);
+        evidenceErrorImageView = view.findViewById(R.id.evidenceErrorImageView);
         textInputLayoutPersonName = view.findViewById(R.id.textInputLayoutPersonName);
         barangayTextInputLayout = view.findViewById(R.id.barangayTextInputLayout);
+        crimeDescriptionTextInputLayout = view.findViewById(R.id.crimeDescriptionTextInputLayout);
+        evidenceTextInputLayout = view.findViewById(R.id.evidenceTextInputLayout);
         typeOfCrimeLayout = view.findViewById(R.id.typeOfCrimeLayout);
         autoGenerateProgressBar = view.findViewById(R.id.autoGenerateProgressBar);
 
@@ -553,7 +557,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
 
         barangaySpinner.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)  {
+            public void onClick(View v) {
                 showBottomSheetDialog();
             }
         });
@@ -573,7 +577,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
                     userData.setLocationEnabled(isChecked);
                     // If the switch is turned off, reset the location flag
                     isLocationSet = false;
-                    if (!isAffectedByOtherFunction){
+                    if (!isAffectedByOtherFunction) {
                         removeUserMarker();
                     }
                     stopLocationUpdates();
@@ -609,9 +613,11 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
             // Inside the onClick() method of the "Next" button in Step2Fragment
             @Override
             public void onClick(View v) {
-                saveUserData();
-                // Navigate to the next fragment (EditReportStep3Fragment)
-                ((createReport_activity) requireActivity()).navigateToNextFragment(new Step3Fragment());
+                if (validateUserInputs()) {
+                    saveUserData();
+                    // Navigate to the next fragment (EditReportStep3Fragment)
+                    ((createReport_activity) requireActivity()).navigateToNextFragment(new Step3Fragment());
+                }
             }
 
         });
@@ -621,7 +627,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         autoGenerateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (validateUserInputs()) {
+                if (generateValidateUserInputs()) {
                     generatedDescription = generateDescription();
                     descriptionEditText.setText("");
                     autoGenerateButton.setText("");
@@ -676,7 +682,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         return view;
     }
 
-    private boolean validateUserInputs() {
+    private boolean generateValidateUserInputs() {
         // Validate user inputs here
         boolean isValid = true;
 
@@ -711,6 +717,65 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         return isValid;
     }
 
+    private boolean validateUserInputs() {
+        // Validate user inputs here
+        boolean isValid = true;
+
+        if (userData.isYesButtonSelected()) {
+            // Validate person involved input
+            String personInvolved = enterPersonEditTexts.getText().toString().trim();
+            if (personInvolved.isEmpty()) {
+                isValid = false;
+                setupTextWatchers();
+                enterPersonNameErrorImageView.setVisibility(View.VISIBLE);
+                textInputLayoutPersonName.setError("Error: Please enter the person name"); // Clear the error
+                enterPersonEditTexts.requestFocus();
+            } else {
+                enterPersonNameErrorImageView.setVisibility(View.GONE);
+                textInputLayoutPersonName.setError(null); // Clear the error
+            }
+        }
+
+        // Validate location input
+        String location = barangaySpinner.getText().toString().trim();
+        if (location.isEmpty()) {
+            isValid = false;
+            setupTextWatchers();
+            barangayErrorImageView.setVisibility(View.VISIBLE);
+            barangayTextInputLayout.setError("Error: Please provide location information");
+            barangayTextInputLayout.requestFocus();
+        } else {
+            barangayErrorImageView.setVisibility(View.GONE);
+            barangayTextInputLayout.setError(null); // Clear the error
+        }
+
+        // Validate location input
+        String crime_description = descriptionEditText.getText().toString().trim();
+        if (crime_description.isEmpty()) {
+            isValid = false;
+            setupTextWatchers();
+            crimeDescriptionErrorImageView.setVisibility(View.VISIBLE);
+            crimeDescriptionTextInputLayout.setError("Error: Please provide a brief description");
+            crimeDescriptionTextInputLayout.requestFocus();
+        } else {
+            crimeDescriptionErrorImageView.setVisibility(View.GONE);
+            crimeDescriptionTextInputLayout.setError(null); // Clear the error
+        }
+
+        if (userData.getSelectedImageUrls().isEmpty()) {
+            isValid = false;
+            evidenceErrorImageView.setVisibility(View.VISIBLE);
+            evidenceTextInputLayout.setError("Error: Please provide evidences");
+            evidenceTextInputLayout.requestFocus();
+        } else {
+            evidenceErrorImageView.setVisibility(View.GONE);
+            evidenceTextInputLayout.setVisibility(View.GONE);
+            evidenceTextInputLayout.setError(null); // Clear the error
+        }
+
+        return isValid;
+    }
+
     private void setupTextWatchers() {
         enterPersonEditTexts.addTextChangedListener(new TextWatcher() {
             @Override
@@ -735,7 +800,29 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
             public void afterTextChanged(Editable editable) {
             }
         });
+        descriptionEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String crimeDescription = charSequence.toString().trim();
+                if (crimeDescription.isEmpty()) {
+                    crimeDescriptionErrorImageView.setVisibility(View.VISIBLE);
+                    crimeDescriptionTextInputLayout.setError("Error: Please enter crime description"); // Clear the error
+                    crimeDescriptionTextInputLayout.requestFocus();
+                } else {
+                    crimeDescriptionErrorImageView.setVisibility(View.GONE);
+                    crimeDescriptionTextInputLayout.setError(null); // Clear the error
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
         barangaySpinner.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -1171,7 +1258,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     }
 
     public void handleLocation(double passLatitude, double passLongitude) {
-        Log.e("Step2Fragment","handleLocation - is location enabled in step2" + userData.isLocationEnabled());
+        Log.e("Step2Fragment", "handleLocation - is location enabled in step2" + userData.isLocationEnabled());
         removeUserMarker();
         // Reverse geocode the latitude and longitude to get the location address
         Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
@@ -1204,7 +1291,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
                 // Update the flag to indicate that the location is set
                 isLocationSet = true;
 
-                if (!userData.isLocationEnabled()){
+                if (!userData.isLocationEnabled()) {
                     setLocationButton.setChecked(false);
                     isAffectedByOtherFunction = true;
                     Log.e("Step2Fragment", "isLocationEnabled in Step2Fragment: " + userData.isLocationEnabled());
@@ -1887,24 +1974,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         startActivityForResult(Intent.createChooser(intent, "Select Images"), PICK_IMAGES_REQUEST_CODE);
     }
 
-
-    private Bitmap getBitmapFromUri(Uri uri) throws IOException {
-        InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);
-        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-        inputStream.close();
-        return bitmap;
-    }
     //END OF IMAGE METHODS
-
-    private void clearForm() {
-        // Clear the imageContainer by removing all views
-        descriptionEditText.setText("");
-        barangaySpinner.setText("");
-        imageUrls.clear();
-        imageContainer.removeAllViews();
-        requireActivity().finish();
-        Log.d("MainActivity", "clearForm - Form Cleared");
-    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -1920,6 +1990,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
                     // Example:
                     String imageUrl = imageUri.toString();
                     userData.getSelectedImageUrls().add(imageUrl);
+                    validateUserInputs();
                     Log.d("MainActivity", "onActivityResult - FIrst condition - Image URL: " + imageUrl); // Log the image URL
                 }
             } else if (data != null && data.getData() != null) {
@@ -1929,6 +2000,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
                 // Example:
                 String imageUrl = imageUri.toString();
                 userData.getSelectedImageUrls().add(imageUrl);
+                validateUserInputs();
                 Log.d("MainActivity", "onActivityResult - Second condition - Image URL: " + imageUrl); // Log the image URL
             }
             // Display the selected images using the userData.getSelectedImageUrls() list

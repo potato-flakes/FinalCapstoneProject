@@ -90,7 +90,7 @@ public class HomeActivity extends AppCompatActivity {
     private Button logoutButton;
     private static final String USER_SESSION = "MyAppPrefs";
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
-
+    private AlertDialog dialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,16 +109,6 @@ public class HomeActivity extends AppCompatActivity {
 
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         gsc = GoogleSignIn.getClient(this, gso);
-
-        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
-        if (acct != null) {
-            user_firstname.setText(acct.getGivenName());
-            Log.e("HomeActivity", "Name: " + acct.getDisplayName());
-            Log.e("HomeActivity", "Email: " + acct.getEmail());
-            Log.e("HomeActivity", "Given Name: " + acct.getGivenName());
-            Log.e("HomeActivity", "Photo: " + acct.getPhotoUrl());
-            Log.e("HomeActivity", "Photo: " + acct.getId());
-        }
 
         scannerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -406,8 +396,12 @@ public class HomeActivity extends AppCompatActivity {
                             // Handle the redirection to the specific feature here
                             // For example, start a new activity or fragment that corresponds to the selected feature.
                             if ("Scan".equals(categoryName)) {
-                                // Redirect to the Scan feature
-                                startActivity(new Intent(HomeActivity.this, CameraActivity.class));
+                                if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                    ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+                                } else {
+                                    Intent cameraIntent = new Intent(HomeActivity.this, CameraActivity.class);
+                                    startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
+                                }
                             } else if ("Report".equals(categoryName)) {
                                 // Redirect to the Report feature
                                 startActivity(new Intent(HomeActivity.this, ReportActivity.class));
@@ -479,10 +473,7 @@ public class HomeActivity extends AppCompatActivity {
                         String joined = jsonObject.getString("joined");
                         String sex = jsonObject.getString("gender");
                         String phone = jsonObject.getString("phone");
-                        int profile_pic = jsonObject.getInt("tmp");
-                        int ban_duration = jsonObject.getInt("ban_duration");
-                        String ban_reason = jsonObject.getString("ban_reason");
-
+                        user_firstname.setText(firstname);
                         SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString("is_admin", is_admin);
@@ -493,12 +484,9 @@ public class HomeActivity extends AppCompatActivity {
                         editor.putString("sex", sex);
                         editor.putString("phone", phone);
                         editor.putString("sex", sex);
-                        editor.putInt("profile_pic", profile_pic);
-                        editor.putInt("ban_duration", ban_duration);
-                        editor.putString("ban_reason", ban_reason);
                         editor.apply();
 
-                        user_firstname.setText(firstname);
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -679,6 +667,31 @@ public class HomeActivity extends AppCompatActivity {
 
             }
         }
+    }
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Close Application");
+        builder.setMessage("Are you sure you want to exit the application?");
+
+        builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish(); // Close the application
+                dialog.dismiss();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+        positiveButton.setTextColor(getResources().getColor(R.color.logoutButtonTextColor));
+        negativeButton.setTextColor(getResources().getColor(R.color.cancelButtonTextColor));
     }
 
 }

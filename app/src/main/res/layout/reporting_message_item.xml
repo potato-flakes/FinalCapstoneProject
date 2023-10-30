@@ -12,19 +12,31 @@
         android:layout_marginEnd="8dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/logo" /> <!-- Provide a default image resource -->
+        app:srcCompat="@drawable/logo" />
 
-    <TextView
-        android:id="@+id/messageContentTextView"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/messageContentLayout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
         app:layout_constraintStart_toEndOf="@+id/senderProfileImageView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/messageContentTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:text="Lorem Lorem LoremLorem Lorem LoremLorem Lorem LoremLorem Lorem LoremLorem Lorem LoremLorem Lorem LoremLorem Lorem LoremLorem Lorem LoremLorem Lorem Lorem"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintWidth_max="0dp"
+            app:layout_constraintHorizontal_bias="0.7"
+            android:layout_marginEnd="8dp"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

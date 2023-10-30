@@ -21,9 +21,8 @@ public class WebSocketClient {
     private WebSocket webSocket;
     private MessageListener messageListener; // Add this field
     private String adminFullName;
-    private String IP_ADDRESS = UrlConstants.IP_ADDRESS;
     private Context context; // Add a Context field
-    String adminId = "1891944"; // Replace with the actual admin ID
+    String adminId = "6591457"; // Replace with the actual admin ID
     int newUserID;
     public void send(String message) {
         if (webSocket != null && webSocket.send(message)) {
@@ -58,7 +57,7 @@ public class WebSocketClient {
         }
 
 
-        Request request = new Request.Builder().url("ws://" + IP_ADDRESS + ":8081?user_id=" + user_id + "&admin_id=" + adminId + "&getUsersMessages=true").build();
+        Request request = new Request.Builder().url("wss://recyclearn.glitch.me?user_id=" + user_id + "&admin_id=" + adminId + "&getUsersMessages=true").build();
 
         // Create a WebSocket listener
         int finalNewUserID = newUserID;

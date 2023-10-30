@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
+    <ImageView
+        android:id="@+id/scannerEdge"
+        android:elevation="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="90dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_scan_border"
+        android:layout_above="@+id/buttonLayout" />
     <SurfaceView
         android:id="@+id/surfaceView"
         android:layout_width="match_parent"
@@ -15,10 +22,10 @@
         android:layout_above="@+id/buttonLayout"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:gravity="center"
         android:layout_marginStart="80dp"
         android:layout_marginEnd="80dp"
         android:layout_marginBottom="20dp"
+        android:gravity="center"
         android:text="When taking a picture, make sure \n
 the bottle is in focus."
         android:textColor="@android:color/white" />
@@ -28,11 +35,11 @@ the bottle is in focus."
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="20dp"
         android:layout_marginStart="20dp"
         android:layout_marginLeft="20dp"
-        android:padding="1dp"
-        android:elevation="1dp">
+        android:layout_marginTop="20dp"
+        android:elevation="1dp"
+        android:padding="1dp">
 
         <ImageButton
             android:id="@+id/back_toggle"
@@ -53,8 +60,8 @@ the bottle is in focus."
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginRight="20dp"
-        android:padding="1dp"
-        android:elevation="1dp">
+        android:elevation="1dp"
+        android:padding="1dp">
 
         <ImageButton
             android:id="@+id/flash_toggle"
@@ -70,18 +77,77 @@ the bottle is in focus."
     <LinearLayout
         android:id="@+id/buttonLayout"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="130dp"
         android:layout_alignParentBottom="true"
         android:background="@android:color/white"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="horizontal">
 
-        <ImageButton
-            android:id="@+id/captureButton"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="@drawable/ic_camera"
-            android:layout_marginStart="48dp"
-            android:layout_marginEnd="48dp" />
+        <TextView
+            android:id="@+id/uploadButton"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/upload_button_background_all"
+            android:fontFamily="@font/poppinsmedium"
+            android:gravity="center"
+            android:paddingStart="20dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="10dp"
+            android:text="Photos"
+            android:textColor="@color/colorPrimary" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/rounded_camera_background"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/captureButton"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="@drawable/ic_camera" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/snapTipsContainer"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="10dp"
+            android:background="@android:color/white"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/rounded_camera_background"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="3dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_snap_tips" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppinsmedium"
+                android:gravity="center"
+                android:text="Snap Tips"
+                android:textColor="@color/colorPrimary" />
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -98,10 +164,11 @@ the bottle is in focus."
             android:id="@+id/increase_toggle"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:scaleType="fitXY"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_increase"/>
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_increase" />
     </RelativeLayout>
+
     <LinearLayout
         android:id="@+id/buttonsLayout"
         android:layout_width="205dp"
@@ -110,8 +177,8 @@ the bottle is in focus."
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="-78dp"
         android:layout_marginBottom="15dp"
-        android:orientation="horizontal"
-        android:clickable="false">
+        android:clickable="false"
+        android:orientation="horizontal">
 
         <SeekBar
             android:id="@+id/zoomSeekBar"
@@ -123,14 +190,15 @@ the bottle is in focus."
             android:rotation="270" />
 
     </LinearLayout>
+
     <RelativeLayout
         android:id="@+id/decrease_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/buttonsLayout"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="15dp"
         android:layout_marginTop="-70dp"
+        android:layout_marginEnd="15dp"
         android:elevation="1dp">
 
         <ImageButton

@@ -288,20 +288,33 @@
             android:text="Change Password?"
             android:textColor="#4CAF50" />
     </RelativeLayout>
-    <!-- Button to save user details -->
-    <Button
-        android:id="@+id/save_details_button"
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50dp"
+        android:layout_height="50dp"
         android:layout_marginTop="10dp"
-        android:layout_marginRight="50dp"
-        android:background="@drawable/edit_profile_button_rounded_background"
-        android:fontFamily="@font/poppinsmedium"
-        android:text="Save Changes"
-        android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/changePasswordLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/changePasswordLayout">
+
+        <Button
+            android:id="@+id/save_details_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:background="@drawable/edit_profile_button_rounded_background"
+            android:fontFamily="@font/poppinsmedium"
+            android:text="Save Changes"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

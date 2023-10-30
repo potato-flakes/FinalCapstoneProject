@@ -2,13 +2,17 @@ package com.system.finalcapstoneproject.reportingsystem;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,7 +37,13 @@ public class createReport_activity extends AppCompatActivity{
     private AlertDialog dialog;
     private Handler handler = new Handler();
     private UserData userData;
-
+    private CheckBox consentCheckbox;
+    private Button agreeButton;
+    private Button disagreeButton;
+    private AlertDialog consentDialog;
+    private SharedPreferences sharedPreferences;
+    private static final String PREFS_NAME = "ConsentPreferences";
+    private static final String PREF_CONSENT_KEY = "UserConsent";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,16 +54,134 @@ public class createReport_activity extends AppCompatActivity{
         progressLabel = findViewById(R.id.progressLabel);
         typeLabel = findViewById(R.id.typeLabel);
         containerLayout = findViewById(R.id.progress_container);
+        consentCheckbox = findViewById(R.id.consentCheckbox);
+        agreeButton = findViewById(R.id.agreeButton);
+        disagreeButton = findViewById(R.id.disagreeButton);
         loadingView = getLayoutInflater().inflate(R.layout.reporting_loading_screen, containerLayout, false);
+
         userData = new UserData();
-        SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
         String user_id = sharedPreferences.getString("user_id", "");
         Log.e("createReport_activity", "retrieveUserDetails - User ID:" + user_id);
-
         userData.setUserId(user_id);
 
-        // Start the form by showing the first fragment
-        navigateToNextFragment(new Step1Fragment());
+        // Initialize SharedPreferences
+        sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+
+        // Check if the user's consent choice has been remembered
+        boolean userConsent = sharedPreferences.getBoolean(PREF_CONSENT_KEY, false);
+
+        // If consent is already remembered, proceed directly
+        if (userConsent) {
+            navigateToNextFragment(new Step1Fragment());
+        } else {
+            // Show the consent dialog
+            showConsentDialog();
+        }
+    }
+
+    private void showConsentDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View consentDialogView = getLayoutInflater().inflate(R.layout.consent_dialog, null);
+        builder.setView(consentDialogView);
+
+        consentCheckbox = consentDialogView.findViewById(R.id.consentCheckbox);
+        agreeButton = consentDialogView.findViewById(R.id.agreeButton);
+        disagreeButton = consentDialogView.findViewById(R.id.disagreeButton);
+
+        // Checkbox is unchecked, disable the "Continue" button
+        agreeButton.setEnabled(false);
+        agreeButton.setBackgroundResource(R.drawable.reporting_disagree_consent_background); // Change to disabled button background
+        agreeButton.setTextColor(getResources().getColor(R.color.white)); // Change to disabled button text color
+
+        consentCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Checkbox is checked, enable the "Continue" button
+                    agreeButton.setEnabled(true);
+                    agreeButton.setBackgroundResource(R.drawable.reporting_button_rounded_background); // Change to enabled button background
+                    agreeButton.setTextColor(getResources().getColor(R.color.white)); // Change to enabled button text color
+                } else {
+                    // Checkbox is unchecked, disable the "Continue" button
+                    agreeButton.setEnabled(false);
+                    agreeButton.setBackgroundResource(R.drawable.reporting_disagree_consent_background); // Change to disabled button background
+                    agreeButton.setTextColor(getResources().getColor(R.color.white)); // Change to disabled button text color
+                }
+            }
+        });
+
+        agreeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (consentCheckbox.isChecked()) {
+                    // User agrees, handle the consent
+                    // For example, proceed with report creation
+                    rememberUserConsent();
+                    consentDialog.dismiss();
+                    navigateToNextFragment(new Step1Fragment());
+                } else {
+                    // User did not check the consent checkbox, inform the user
+                    // You can display an error message or customize the behavior
+                    // For example, show a toast message
+                    Toast.makeText(createReport_activity.this, "Please agree to the terms and conditions.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        disagreeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // User disagrees, you can handle this case (e.g., go back or exit the app)
+                consentDialog.dismiss();
+                // Handle disagreement action here, e.g., go back or close the application
+                finish();
+            }
+        });
+
+        // Find the TextViews for Privacy Policy and Terms and Conditions
+        TextView privacyPolicyText = consentDialogView.findViewById(R.id.privacyPolicyText);
+        TextView termsConditionsText = consentDialogView.findViewById(R.id.termsConditionsText);
+
+        // Set click listeners for Privacy Policy
+        privacyPolicyText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Open the Privacy Policy page or content
+                openPrivacyPolicy();
+            }
+        });
+
+        // Set click listeners for Terms and Conditions
+        termsConditionsText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Open the Terms and Conditions page or content
+                openTermsAndConditions();
+            }
+        });
+        
+        builder.setCancelable(false);
+        consentDialog = builder.create();
+        consentDialog.setCanceledOnTouchOutside(false);
+        consentDialog.show();
+    }
+
+    // Function to open the Privacy Policy
+    private void openPrivacyPolicy() {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://recyclearn.online/privacypolicy.php"));
+        startActivity(intent);
+    }
+
+    // Function to open the Terms and Conditions
+    private void openTermsAndConditions() {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://recyclearn.online/termsandconditions.php"));
+        startActivity(intent);
+    }
+    private void rememberUserConsent() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(PREF_CONSENT_KEY, true);
+        editor.apply();
     }
 
     public void navigateToNextFragment(Fragment fragment) {
@@ -206,10 +334,5 @@ public class createReport_activity extends AppCompatActivity{
         dialog = builder.create();
         dialog.show();
     }
-
-    // Inside CreateTutorialActivity.java
-
-// ... (other code)
-
 
 }

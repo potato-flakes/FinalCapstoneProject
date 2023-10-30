@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
@@ -34,11 +36,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -105,6 +109,7 @@ public class ProfileActivity extends AppCompatActivity {
     private String lastSex;
     private RadioButton selectedRadioButton;
     private Bitmap bitmap;
+    private ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,7 +129,7 @@ public class ProfileActivity extends AppCompatActivity {
         changeEmailText = findViewById(R.id.changeEmailText);
         saveDetailsButton = findViewById(R.id.save_details_button);
         backButton = findViewById(R.id.back_toggle);
-
+        progressBar = findViewById(R.id.progressBar);
         SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
         String passed_user_id = sharedPreferences.getString("user_id", "");
         user_id = passed_user_id;
@@ -257,7 +262,7 @@ public class ProfileActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 // Handle the email change confirmation
                                 String newEmail = newEmailEditText.getText().toString();
-
+                                Log.e("ProfileActivity", "changeEmailText - newEmail: " + newEmail);
                                 // Update the email address
                                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                                 if (user != null) {
@@ -270,12 +275,13 @@ public class ProfileActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {
                                                         if (task.isSuccessful()) {
+                                                            updateEmailInMySQL(newEmail);
                                                             // Verification email sent successfully
-                                                            Toast.makeText(ProfileActivity.this, "Verification email sent to " + newEmail, Toast.LENGTH_SHORT).show();
+                                                            Toast.makeText(ProfileActivity.this, "Your email has been changed to " + newEmail, Toast.LENGTH_SHORT).show();
                                                             showVerificationDialog(newEmail);
                                                         } else {
                                                             // Failed to send verification email
-                                                            Toast.makeText(ProfileActivity.this, "Failed to send verification email.", Toast.LENGTH_SHORT).show();
+                                                            Toast.makeText(ProfileActivity.this, "Failed to update email.", Toast.LENGTH_SHORT).show();
                                                         }
                                                     }
                                                 });
@@ -488,6 +494,86 @@ public class ProfileActivity extends AppCompatActivity {
         retrieveUserDetails();
     }
 
+    private void updateEmailInMySQL(String newEmail) {
+        Log.e("Step3Fragment", "sendReport - newEmail: " + newEmail);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Declare response variable outside the try-catch block
+                String response = "";
+                try {
+                    // Create JSON object with user data
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("user_id", user_id);
+                    jsonObject.put("newEmail", newEmail);
+                    Log.d("ProfileActivity", "reportCrime - Data to be passed: " + jsonObject);
+
+                    // Send the data to the PHP API and get the response
+                    URL url = new URL(UrlConstants.UPDATE_EMAIL_URL);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("POST");
+                    connection.setRequestProperty("Content-Type", "application/json");
+                    connection.setDoOutput(true);
+
+                    DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+                    outputStream.writeBytes(jsonObject.toString());
+                    outputStream.flush();
+                    outputStream.close();
+
+                    int responseCode = connection.getResponseCode();
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        // Read the response from the API
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                        StringBuilder responseBuilder = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            responseBuilder.append(line);
+                        }
+                        reader.close();
+
+                        // Assign the response to the declared variable
+                        response = responseBuilder.toString();
+
+                        // Parse the response as JSON
+                        JSONObject jsonResponse = new JSONObject(response.toString());
+                        Log.d("ProfileActivity", "reportCrime - JSON Response - Data upload: " + jsonResponse);
+                        // Extract the status from the response
+                        String status = jsonResponse.getString("status");
+
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (status.equals("success")) {
+                                        Toast.makeText(ProfileActivity.this, "Details saved successfully!", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    // Display an error message when the update fails
+                                    Toast.makeText(ProfileActivity.this, "Details saved failed!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    } else {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Display an error message
+                                Toast.makeText(ProfileActivity.this, "Details saved failed!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                } catch (IOException | JSONException e) {
+                    Log.e("ProfileActivity", "reportCrime - Response String: " + response); // Use the declared response variable
+                    e.printStackTrace();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(ProfileActivity.this, "Please check your inputs!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
     private void enableSaveChangesButton() {
         boolean firstNameIsValid = isFirstNameValid;
         boolean lastNameIsValid = isLastNameValid;
@@ -588,49 +674,15 @@ public class ProfileActivity extends AppCompatActivity {
         builder.setView(dialogView);
 
         // Initialize dialog elements
+        TextView headerText = dialogView.findViewById(R.id.headerText);
         TextView emailText = dialogView.findViewById(R.id.emailText);
         Button continueButton = dialogView.findViewById(R.id.continueButton);
         TextView countdownText = dialogView.findViewById(R.id.countdownText); // Add this TextView
-
         Button resendEmailButton = dialogView.findViewById(R.id.resendEmailButton);
-        resendEmailButton.setEnabled(false);
-
-        countDownTimer = new CountDownTimer(COUNTDOWN_DURATION, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                long secondsRemaining = millisUntilFinished / 1000;
-                countdownText.setText(getString(R.string.resend_countdown, secondsRemaining));
-            }
-
-            @Override
-            public void onFinish() {
-                countdownText.setVisibility(View.GONE);
-                resendEmailButton.setEnabled(true); // Enable the resend button when the countdown is finished
-            }
-        }.start();
-
-        resendEmailButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                long currentTime = System.currentTimeMillis();
-                if (currentTime - lastResendClickTime >= COUNTDOWN_DURATION) {
-                    // The cooldown period has passed, allow resending the email
-                    lastResendClickTime = currentTime;
-
-                    // Call the function to resend the email
-                    resendVerificationEmail(newEmail);
-
-                    // Disable the resend button and start the countdown timer again
-                    resendEmailButton.setEnabled(false);
-                    countDownTimer.start();
-                } else {
-                    // Display a message to inform the user about the cooldown
-                    Toast.makeText(ProfileActivity.this, "Please wait before resending the email.", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        emailText.setText(getString(R.string.email_verification_message, newEmail));
+        headerText.setText("Email Updated");
+        emailText.setText("You can now login using your new email address!");
+        countdownText.setVisibility(View.GONE);
+        resendEmailButton.setVisibility(View.GONE);
 
         // Set up a click listener for the verify email button
         continueButton.setOnClickListener(new View.OnClickListener() {
@@ -644,31 +696,6 @@ public class ProfileActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-    private void resendVerificationEmail(String email) {
-        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        // Check if a user with this email address already exists
-        firebaseAuth.fetchSignInMethodsForEmail(email).addOnCompleteListener(signInMethodsTask -> {
-            if (signInMethodsTask.isSuccessful()) {
-                if (signInMethodsTask.getResult() != null && signInMethodsTask.getResult().getSignInMethods() != null && signInMethodsTask.getResult().getSignInMethods().size() > 0) {
-                    // User with this email address already exists
-                    firebaseAuth.getCurrentUser().sendEmailVerification().addOnCompleteListener(emailVerificationTask -> {
-                        if (emailVerificationTask.isSuccessful()) {
-                            // Email verification sent
-                            Toast.makeText(ProfileActivity.this, "Email verification link is sent to your email address. Please verify your email address.", Toast.LENGTH_SHORT).show();
-                            showVerificationDialog(email);
-                        } else {
-                            // Email verification sending failed
-                            Toast.makeText(ProfileActivity.this, "Email verification failed. Please try again later.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            } else {
-                // Error checking if user exists
-                Toast.makeText(ProfileActivity.this, "Error checking email existence.", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     private void saveUserDetails() {
         try {
             updateUserDataOnServer();
@@ -678,6 +705,13 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void updateUserDataOnServer() throws ParseException {
+        // Retrieve user ID from the intent or wherever you store it
+        progressBar.setVisibility(View.VISIBLE); // Show the progress bar
+        progressBar.setIndeterminate(true); // Set the ProgressBar to indeterminate mode
+        progressBar.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(ProfileActivity.this, R.color.white), PorterDuff.Mode.SRC_IN); // Set the color of the ProgressBar
+        // Disable the button
+        saveDetailsButton.setEnabled(false);
+        saveDetailsButton.setText("");
         // Get the updated user details from the input fields
         String newFirstName = Objects.requireNonNull(first_name.getText()).toString().trim();
         String newLastName = Objects.requireNonNull(last_name.getText()).toString().trim();
