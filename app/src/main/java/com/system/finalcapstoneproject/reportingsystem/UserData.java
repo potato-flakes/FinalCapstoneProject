@@ -19,6 +19,7 @@ public class UserData {
     private int crimeHour = -1;
     private int crimeMinute = -1;
     private String crimeLocation;
+    private String userCurrentLocation;
     private String crimeTimeIndication;
     private double latitude;
     private double longitude;
@@ -113,6 +114,13 @@ public class UserData {
 
     public void setCrimeExactLocation(String crimeLocation) {
         this.crimeLocation = crimeLocation;
+    }
+    public String getUserCurrentLocation() {
+        return userCurrentLocation;
+    }
+
+    public void setUserCurrentLocation(String userCurrentLocation) {
+        this.userCurrentLocation = userCurrentLocation;
     }
     public String getSelectedBarangay() {
         return selectedBarangay;

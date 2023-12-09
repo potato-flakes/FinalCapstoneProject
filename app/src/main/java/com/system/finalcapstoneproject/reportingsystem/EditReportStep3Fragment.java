@@ -444,7 +444,7 @@ public class EditReportStep3Fragment extends Fragment {
                     jsonObject.put("crime_user_email", crime_user_email);
                     jsonObject.put("deletedImageUrls", new JSONArray(deletedImageUrls));
 
-                    Log.d("MainActivity", "reportCrime - Data to be passed: " + jsonObject);
+                    Log.d("IDUNNO", "reportCrime - Data to be passed: " + jsonObject);
 
                     // Send the data to the PHP API and get the response
                     URL url = new URL(UPDATE_REPORT);
@@ -474,9 +474,9 @@ public class EditReportStep3Fragment extends Fragment {
 
                         // Parse the response as JSON
                         JSONObject jsonResponse = new JSONObject(response);
-                        Log.d("MainActivity", "reportCrime - JSON Response - Data upload: " + jsonResponse);
+                        Log.d("IDUNNO", "reportCrime - JSON Response - Data upload: " + jsonResponse);
                         // Extract the report ID from the response
-                        Log.d("MainActivity", "reportCrime - Retrieved Report ID from server: " + report_id);
+                        Log.d("IDUNNO", "reportCrime - Retrieved Report ID from server: " + report_id);
 
                         // Check if the "deletionStatus" array exists in the response
                         if (jsonResponse.has("deletionStatus")) {
@@ -489,7 +489,7 @@ public class EditReportStep3Fragment extends Fragment {
                                 String status = deletionStatusEntry.getString("status");
 
                                 // Log the deletion status for each image
-                                Log.d("MainActivity", "Image URL: " + imageURL + ", Status: " + status);
+                                Log.d("IDUNNO", "Image URL: " + imageURL + ", Status: " + status);
 
                                 // You can handle the status as needed (e.g., show a message to the user)
                                 if ("error".equals(status)) {
@@ -522,7 +522,7 @@ public class EditReportStep3Fragment extends Fragment {
                             @Override
                             public void run() {
                                 Toast.makeText(requireContext(), "Response from server does not match", Toast.LENGTH_SHORT).show();
-                                Log.e("MainActivity", "reportCrime - Check report.php");
+                                Log.e("IDUNNO", "reportCrime - Check report.php");
                             }
                         });
                     }
@@ -535,7 +535,7 @@ public class EditReportStep3Fragment extends Fragment {
                         @Override
                         public void run() {
                             Toast.makeText(requireContext(), "Please check the inputted details", Toast.LENGTH_SHORT).show();
-                            Log.e("MainActivity", "reportCrime - Check inputted details");
+                            Log.e("IDUNNO", "reportCrime - Check inputted details");
                         }
                     });
                 }
@@ -544,7 +544,7 @@ public class EditReportStep3Fragment extends Fragment {
     }
 
     private void uploadImagesToServer(final List<String> imageUrls, final String report_id) {
-        Log.d("MainActivity", "uploadImagesToServer - has started");
+        Log.d("IDUNNO", "uploadImagesToServer - has started");
         RequestQueue queue = Volley.newRequestQueue(requireContext());
         String url = UPLOAD_IMAGES_REPORT;
         final AtomicInteger uploadCounter = new AtomicInteger(0);
@@ -553,7 +553,7 @@ public class EditReportStep3Fragment extends Fragment {
             StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    Log.d("MainActivity", "uploadImagesToServer - Condition: " + response);
+                    Log.d("IDUNNO", "uploadImagesToServer - Condition: " + response);
                     int count = uploadCounter.incrementAndGet();
                     if (count == imageUrls.size()) {
                         // All images have been uploaded
@@ -565,7 +565,7 @@ public class EditReportStep3Fragment extends Fragment {
                                     clearForm();
                                 } else {
                                     Toast.makeText(requireContext(), "Some images failed to upload", Toast.LENGTH_SHORT).show();
-                                    Log.e("MainActivity", "uploadImagesToServer - Check upload.php");
+                                    Log.e("IDUNNO", "uploadImagesToServer - Check upload.php");
                                 }
                             }
                         });
@@ -613,7 +613,7 @@ public class EditReportStep3Fragment extends Fragment {
     private void clearForm() {
         requireActivity().finish();
         summaryDialog.dismiss();
-        Log.d("MainActivity", "clearForm - Form Cleared");
+        Log.d("IDUNNO", "clearForm - Form Cleared");
     }
 
     private void applyClickAnimation(@AnimatorRes int animationResId, View view) {

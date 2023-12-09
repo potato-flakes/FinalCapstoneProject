@@ -16,4 +16,16 @@
     <color name="selected_text_color">#FFFFFF</color>
     <color name="unselected_text_color">#000000</color>
     <color name="disabled_color">#BDBDBD</color>
+
+    <color name="bounding_box_color">#FF6F00</color>
+    <color name="toolbar_background">#EEEEEE</color>
+    <color name="ic_launcher_background">#FFFFFF</color>
+    <color name="bottom_sheet_background">#EEEEEE</color>
+    <color name="bottom_sheet_text_color">@android:color/black</color>
+    <color name="icActive">#FFFFFFFF</color>
+    <color name="icFocused">#DDFFFFFF</color>
+    <color name="icPressed">#AAFFFFFF</color>
+    <color name="active_button_text_color">#4CAF50</color>
+    <color name="inactive_button_text_color">#333333</color>
+
 </resources>

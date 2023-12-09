@@ -218,7 +218,7 @@ public class LocationBottomSheetFragment extends BottomSheetDialogFragment {
                 @Override
                 public void onLocationChanged(Location location) {
                     // Reverse geocode the current location to get the address
-                    geocoder = new Geocoder(getActivity(), Locale.getDefault());
+                    geocoder = new  Geocoder(getActivity(), Locale.getDefault());
                     try {
                         List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                         if (addresses != null && addresses.size() > 0) {

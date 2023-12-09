@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -65,12 +66,11 @@ import java.util.List;
 public class ImageProcessingActivity extends AppCompatActivity {
     TextView result;
     ImageView imageView, backBtn;
-    int imageSize = 224;
     private static final int CAMERA_PERMISSION_CODE = 100;
     private List<Tutorial> tutorialList;
     private DataSetTutorialAdapter dataSetTutorialAdapter;
     private RecyclerView recyclerView;
-    private Bitmap datasetImage;
+    private Bitmap passDatasetImage;
     private String dataset_target_dir;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,16 +132,33 @@ public class ImageProcessingActivity extends AppCompatActivity {
         requestCameraPermission();
         requestExternalStoragePermission();
 
-        String imageUriString = getIntent().getStringExtra("imageUri");
-        String imagePath = getIntent().getStringExtra("image_path");
+        // Get data passed from the CameraFragment
+        Intent intent = getIntent();
+        if (intent != null) {
+            byte[] byteArray = intent.getByteArrayExtra("image");
+            String detectedClass = intent.getStringExtra("detectedClass");
+            float confidenceScore = intent.getFloatExtra("confidenceScore", 0.0f);
+            int imageRotation = intent.getIntExtra("imageRotation", 0);
+            // Convert byte array back to Bitmap
+            Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
 
-        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+            // Rotate the bitmap based on the image rotation
+            if (imageRotation != 0) {
+                Matrix matrix = new Matrix();
+                matrix.postRotate(imageRotation);
+                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            }
+
+            // Display the detected object information
+            displayDetectedObject(detectedClass, bitmap);
+        }
+        String imageUriString = getIntent().getStringExtra("imageUri");
         if (imageUriString != null) {
             Uri imageUri = Uri.parse(imageUriString);
             Bitmap image = null;
             try {
                 image = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-                datasetImage = image;
+                passDatasetImage = image;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -149,19 +166,8 @@ public class ImageProcessingActivity extends AppCompatActivity {
             image = ThumbnailUtils.extractThumbnail(image, dimension, dimension);
             imageView.setImageBitmap(image);
 
-            image = Bitmap.createScaledBitmap(image, imageSize, imageSize, false);
-            classifyImage(image);
-        } else if (bitmap != null) {
-            datasetImage = bitmap;
-            int dimension = Math.min(bitmap.getWidth(), bitmap.getHeight());
-            bitmap = ThumbnailUtils.extractThumbnail(bitmap, dimension, dimension);
-            imageView.setImageBitmap(bitmap);
 
-            Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, imageSize, imageSize, false);
-
-            classifyImage(resizedBitmap);
         }
-
     }
 
     private void filterTutorials(String query) {
@@ -185,8 +191,8 @@ public class ImageProcessingActivity extends AppCompatActivity {
         String tutorialHeaderImage = null;
         ByteArrayOutputStream byteArrayOutputStream;
         byteArrayOutputStream = new ByteArrayOutputStream();
-        if (datasetImage != null) {
-            datasetImage.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        if (passDatasetImage != null) {
+            passDatasetImage.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
             byte[] bytes = byteArrayOutputStream.toByteArray();
             tutorialHeaderImage = Base64.encodeToString(bytes, Base64.DEFAULT);
         }
@@ -258,133 +264,77 @@ public class ImageProcessingActivity extends AppCompatActivity {
             }
         }).start();
     }
-    public void classifyImage(Bitmap image) {
+    private void displayDetectedObject(String predictedClass, Bitmap datasetImage) {
+        passDatasetImage = datasetImage;
+        imageView.setImageBitmap(datasetImage);
+        if(predictedClass.contains("Wilkins")){
+            result.setText("Wilkins");
+        } else if(predictedClass.contains("Coca Cola")){
+            result.setText("Coca Cola");
+        } else if(predictedClass.contains("C2")){
+            result.setText("C2");
+        } else if(predictedClass.contains("7UP")){
+            result.setText("7Up");
+        } else if(predictedClass.contains("Sprite")){
+            result.setText("Sprite");
+        } else if(predictedClass.contains("Royal")){
+            result.setText("Royal");
+        } else if(predictedClass.contains("Nature's Spring")){
+            result.setText("Nature's Spring");
+        } else if(predictedClass.contains("Le Minerale")){
+            result.setText("Le Minerale");
+        } else if(predictedClass.contains("Datu Puti Patis")){
+            result.setText("Datu Puti Patis");
+        } else if(predictedClass.contains("Sting")){
+            result.setText("Sting");
+        } else if(predictedClass.contains("Mountain Dew")){
+            result.setText("Mountain Dew");
+        } else if(predictedClass.contains("Royal")){
+            result.setText("Royal");
+        } else if(predictedClass.contains("Absolute")){
+            result.setText("Absolute");
+        }
+
+        fetchTutorials(predictedClass);
+
+        if (predictedClass.equals("Wilkins 7L")) {
+            dataset_target_dir = "Wilkins/";
+        } else if (predictedClass.equals("Coca Cola 1.5L")) {
+            dataset_target_dir = "Cocacola/";
+        } else if (predictedClass.equals("C2 1000ml")) {
+            dataset_target_dir = "C2/";
+        } else if (predictedClass.equals("7Up 1.25L")) {
+            dataset_target_dir = "7up/";
+        } else if (predictedClass.equals("Sprite 1.5L")) {
+            dataset_target_dir = "Sprite/";
+        } else if (predictedClass.equals("Royal 1.5L")) {
+            dataset_target_dir = "Royal/";
+        } else if (predictedClass.equals("Nature's Spring 10L")) {
+            dataset_target_dir = "Natures Spring/";
+        } else if (predictedClass.equals("Nature's Spring 500ml")) {
+            dataset_target_dir = "Natures Spring/";
+        } else if (predictedClass.equals("Datu Puti Patis 350ml")) {
+            dataset_target_dir = "Datu Puti Patis/";
+        } else if (predictedClass.equals("Le Minerale 600ml")) {
+            dataset_target_dir = "le_minerale_600ml_folder/";
+        } else if (predictedClass.equals("C2 Solo 230ml")) {
+            dataset_target_dir = "c2_solo_230ml_folder/";
+        } else if (predictedClass.equals("Sting 300ml")) {
+            dataset_target_dir = "Sting/";
+        } else if (predictedClass.equals("Mountain Dew 290ml")) {
+            dataset_target_dir = "Mountain Dew/";
+        } else if (predictedClass.equals("Royal  250ml")) {
+            dataset_target_dir = "Royal/";
+        } else if (predictedClass.equals("Absolute 1000ml")) {
+            dataset_target_dir = "Absolute/";
+        }
+
         try {
-            Model model = Model.newInstance(getApplicationContext());
-
-
-            TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 224, 224, 3}, DataType.FLOAT32);
-            ByteBuffer byteBuffer = ByteBuffer.allocateDirect(4 * imageSize * imageSize * 3);
-            byteBuffer.order(ByteOrder.nativeOrder());
-
-
-            int[] intValues = new int[imageSize * imageSize];
-            image.getPixels(intValues, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
-
-
-            int pixel = 0;
-            for (int i = 0; i < imageSize; i++) {
-                for (int j = 0; j < imageSize; j++) {
-                    int val = intValues[pixel++]; // RGB
-                    byteBuffer.putFloat(((val >> 16) & 0xFF) * (1.f / 255.f));
-                    byteBuffer.putFloat(((val >> 8) & 0xFF) * (1.f / 255.f));
-                    byteBuffer.putFloat((val & 0xFF) * (1.f / 255.f));
-                }
-            }
-
-            inputFeature0.loadBuffer(byteBuffer);
-
-
-            Model.Outputs outputs = model.process(inputFeature0);
-            TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
-
-            float[] confidences = outputFeature0.getFloatArray();
-
-            int maxPos = 0;
-            float maxConfidence = 0;
-            for (int i = 0; i < confidences.length; i++) {
-                if (confidences[i] > maxConfidence) {
-                    maxConfidence = confidences[i];
-                    maxPos = i;
-                }
-            }
-            if (maxConfidence < 0.9) {
-                result.setText("Invalid object");
-                dataset_target_dir = "Unknown Bottles/";
-                try {
-                    sendDataSet();
-                } catch (ParseException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                String[] classes = {"Wilkins 7L", "Coca Cola", "C2 1000ml", "7Up 1.25L", "Sprite 1.5L", "Royal 1.5L", "Nature's Spring 10L", "Nature's Spring 500ml", "Datu Puti Patis 350ml", "Le Minerale 600ml", "C2 Solo 230ml", "Sting 300ml", "Mountain Dew 290ml", "Royal  250ml", "Absolute 1000ml", "Invalid Object"};
-                String predictedClass = classes[maxPos];
-                if(predictedClass.contains("Wilkins")){
-                    result.setText("Wilkins");
-                } else if(predictedClass.contains("Coca Cola")){
-                    result.setText("Coca Cola");
-                } else if(predictedClass.contains("C2")){
-                    result.setText("C2");
-                } else if(predictedClass.contains("7UP")){
-                    result.setText("7Up");
-                } else if(predictedClass.contains("Sprite")){
-                    result.setText("Sprite");
-                } else if(predictedClass.contains("Royal")){
-                    result.setText("Royal");
-                } else if(predictedClass.contains("Nature's Spring")){
-                    result.setText("Nature's Spring");
-                } else if(predictedClass.contains("Le Minerale")){
-                    result.setText("Le Minerale");
-                } else if(predictedClass.contains("Datu Puti Patis")){
-                    result.setText("Datu Puti Patis");
-                } else if(predictedClass.contains("Sting")){
-                    result.setText("Sting");
-                } else if(predictedClass.contains("Mountain Dew")){
-                    result.setText("Mountain Dew");
-                } else if(predictedClass.contains("Royal")){
-                    result.setText("Royal");
-                } else if(predictedClass.contains("Absolute")){
-                    result.setText("Absolute");
-                }
-
-                fetchTutorials(predictedClass);
-
-                if (predictedClass.equals("Wilkins 7L")) {
-                    dataset_target_dir = "Wilkins/";
-                } else if (predictedClass.equals("Coca Cola")) {
-                    dataset_target_dir = "Cocacola/";
-                } else if (predictedClass.equals("C2 1000ml")) {
-                    dataset_target_dir = "C2/";
-                } else if (predictedClass.equals("7Up 1.25L")) {
-                    dataset_target_dir = "7up/";
-                } else if (predictedClass.equals("Sprite 1.5L")) {
-                    dataset_target_dir = "Sprite/";
-                } else if (predictedClass.equals("Royal 1.5L")) {
-                    dataset_target_dir = "Royal/";
-                } else if (predictedClass.equals("Nature's Spring 10L")) {
-                    dataset_target_dir = "Natures Spring/";
-                } else if (predictedClass.equals("Nature's Spring 500ml")) {
-                    dataset_target_dir = "Natures Spring/";
-                } else if (predictedClass.equals("Datu Puti Patis 350ml")) {
-                    dataset_target_dir = "Datu Puti Patis/";
-                } else if (predictedClass.equals("Le Minerale 600ml")) {
-                    dataset_target_dir = "le_minerale_600ml_folder/";
-                } else if (predictedClass.equals("C2 Solo 230ml")) {
-                    dataset_target_dir = "c2_solo_230ml_folder/";
-                } else if (predictedClass.equals("Sting 300ml")) {
-                    dataset_target_dir = "Sting/";
-                } else if (predictedClass.equals("Mountain Dew 290ml")) {
-                    dataset_target_dir = "Mountain Dew/";
-                } else if (predictedClass.equals("Royal  250ml")) {
-                    dataset_target_dir = "Royal/";
-                } else if (predictedClass.equals("Absolute 1000ml")) {
-                    dataset_target_dir = "Absolute/";
-                }
-
-                try {
-                    sendDataSet();
-                } catch (ParseException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-
-            model.close();
-        } catch (IOException e) {
-            // TODO Handle the exception
+            sendDataSet();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
         }
     }
-
 
     private void requestCameraPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
@@ -420,7 +370,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
         String newpredictedClass = null;
         if (predictedClass.equals("Wilkins 7L")) {
             newpredictedClass = "Wilkins";
-        } else if (predictedClass.equals("Coca Cola")) {
+        } else if (predictedClass.equals("Coca Cola 1.5L")) {
             newpredictedClass = "Coca Cola";
         } else if (predictedClass.equals("C2 1000ml")) {
             newpredictedClass = "C2";

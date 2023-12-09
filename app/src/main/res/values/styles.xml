@@ -108,5 +108,13 @@
         <item name="android:background">@drawable/reporting_button_rounded_background</item>
         <item name="android:textColor">#FFFFFF</item> <!-- Change text color as needed -->
     </style>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar"></style>
+    <style name="BottomSheetSpinnerItemStyle" parent="Widget.AppCompat.Light.DropDownItem.Spinner">
+        <item name="android:textSize">@dimen/bottom_sheet_text_size</item>
+    </style>
+    <style name="FilterButtonStyle">
+        <item name="android:fontFamily">@font/poppinsmedium</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
 
 </resources>

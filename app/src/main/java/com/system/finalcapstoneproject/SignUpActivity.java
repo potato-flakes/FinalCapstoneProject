@@ -184,7 +184,7 @@ public class SignUpActivity extends AppCompatActivity {
                 if (firstName.isEmpty()) {
                     textInputLayoutFirstName.setError(getString(R.string.error_enter_firstname));
                     isFirstNameValid = false;
-                } else if (!firstName.matches("^[a-zA-ZñÑ ]*$")) {
+                } else if (!firstName.matches("^[a-zA-ZñÑ0-9 ]*$")) {
                     textInputLayoutFirstName.setError(getString(R.string.error_invalid_fullname));
                     isFirstNameValid = false;
                 } else {
@@ -212,7 +212,7 @@ public class SignUpActivity extends AppCompatActivity {
                 if (lastName.isEmpty()) {
                     textInputLayoutLastname.setError(getString(R.string.error_enter_lastname));
                     isLastNameValid = false;
-                } else if (!lastName.matches("^[a-zA-ZñÑ ]*$")) {
+                } else if (!lastName.matches("^[a-zA-ZñÑ0-9 ]*$")) {
                     textInputLayoutLastname.setError(getString(R.string.error_invalid_fullname));
                     isLastNameValid = false;
                 } else {
@@ -524,10 +524,10 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
-        CheckBox consentCheckbox = findViewById(R.id.consentCheckbox);
+        TextView agreementText = findViewById(R.id.agreementText);
 
         // Set the full text of your CheckBox
-        String checkBoxText = "I agree to the Terms and Conditions and Privacy Policy";
+        String checkBoxText = "By signing up you agree to the Terms and Conditions and Privacy Policy";
 
         // Create a SpannableString to make parts of the text clickable
         SpannableString spannableString = new SpannableString(checkBoxText);
@@ -557,22 +557,10 @@ public class SignUpActivity extends AppCompatActivity {
         spannableString.setSpan(privacyPolicyLink, checkBoxText.indexOf("Privacy Policy"), checkBoxText.indexOf("Privacy Policy") + "Privacy Policy".length(), 0);
 
         // Set the modified text on the TextView within the CheckBox
-        consentCheckbox.setText(spannableString);
+        agreementText.setText(spannableString);
 
         // Enable text links
-        consentCheckbox.setMovementMethod(LinkMovementMethod.getInstance());
-
-        consentCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    isAgreed = true;
-                } else {
-                    isAgreed = false;
-                }
-            }
-        });
-
+        agreementText.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     // Function to resend the verification email
@@ -752,10 +740,9 @@ public class SignUpActivity extends AppCompatActivity {
         boolean emailIsValid = isEmailValid;
         boolean passwordIsValid = isPasswordValid;
         boolean confirmPasswordIsValid = isConfirmPasswordValid;
-        boolean isAgreedToTACAPP = isAgreed;
         String confirmPasswordField = textInputEditTextConfirmPassword.getText().toString();
 
-        if (firstNameIsValid && lastNameIsValid && emailIsValid && passwordIsValid && confirmPasswordIsValid && !confirmPasswordField.isEmpty() && isAgreedToTACAPP) {
+        if (firstNameIsValid && lastNameIsValid && emailIsValid && passwordIsValid && confirmPasswordIsValid && !confirmPasswordField.isEmpty()) {
             buttonSignUp.setEnabled(true);
         } else {
             buttonSignUp.setEnabled(false);

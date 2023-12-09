@@ -8,6 +8,7 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
+
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -29,32 +30,39 @@
         android:icon="@mipmap/ic_logo"
         android:label="@string/app_name"
         android:supportsRtl="true"
+        android:screenOrientation="portrait"
         android:theme="@style/Theme.BasicTheme"
-        android:usesCleartextTraffic="true"
-        tools:targetApi="31"
-        tools:replace="android:allowBackup">
+
+        tools:replace="android:allowBackup"
+        tools:targetApi="31">
         <activity
-            android:name=".SplashScreenActivity"
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity" />
+        <activity
+            android:name=".HomeActivity"
+            android:theme="@style/Theme.CustomTheme" />
+        <activity android:name=".Barangay.BarangayLogsActivity" />
+        <activity android:name=".Barangay.BarangayScanActivity" />
+        <activity android:name=".Barangay.BarangayConfirmationActivity" />
+        <activity android:name=".Barangay.RestrictedAccessActivity" />
         <activity android:name=".AdminScannerActivity.AdminQRScanActivity" />
         <activity android:name=".AdminScannerActivity.RewardClaimActivity" />
         <activity android:name=".AdminScannerActivity.AdminDashboardActivity" />
         <activity android:name=".AdminScannerActivity.UnclaimedReportsActivity" />
         <activity android:name=".AdminScannerActivity.ClaimedRewardsActivity" />
         <activity android:name=".AdminScannerActivity.AbortedRewardsActivity" />
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
         <activity android:name=".SignUpActivity" />
-        <activity
-            android:name=".HomeActivity"
-            android:theme="@style/Theme.CustomTheme" />
+
         <activity android:name=".NotificationActivity" />
         <activity android:name=".ImageProcessingActivity" />
         <activity android:name=".CameraActivity" />
@@ -67,19 +75,49 @@
         <activity
             android:name=".reportingsystem.ReportActivity"
             android:theme="@style/Theme.ReportingHome" />
-        <activity android:name=".reportingsystem.createReport_activity"
+        <activity
+            android:name=".reportingsystem.createReport_activity"
             android:theme="@style/Theme.ReportingContent" />
-        <activity android:name=".reportingsystem.ChatActivity"
+        <activity
+            android:name=".reportingsystem.ChatActivity"
             android:theme="@style/Theme.ReportingContent" />
-        <activity android:name=".reportingsystem.editReport_activity"
+        <activity
+            android:name=".reportingsystem.editReport_activity"
             android:theme="@style/Theme.ReportingContent" />
         <activity
             android:name=".CreateTutorial.TutorialActivity"
             android:theme="@style/Theme.ReportingHome" />
-        <activity android:name=".CreateTutorial.CreateTutorialActivity"
+        <activity
+            android:name=".CreateTutorial.CreateTutorialActivity"
             android:theme="@style/Theme.ReportingContent" />
         <activity android:name=".CreateTutorial.TutorialDetailActivity" />
         <activity android:name=".CreateTutorial.editTutorialActivity" />
+        <activity
+            android:name=".MainActivity"
+            android:clearTaskOnLaunch="true"
+            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
+            android:exported="true"
+            android:resizeableActivity="true"
+            android:rotationAnimation="seamless"
+            android:theme="@style/AppTheme"
+            tools:targetApi="O">
+            <!-- Declare notch support -->
+            <meta-data
+                android:name="android.notch_support"
+                android:value="true" />
+        </activity>
+        <service
+            android:name=".NotificationService"
+            android:exported="false" />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

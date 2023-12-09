@@ -43,6 +43,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.system.finalcapstoneproject.Adaptor.CategoryAdaptor;
+import com.system.finalcapstoneproject.Barangay.BarangayLogsActivity;
 import com.system.finalcapstoneproject.CreateTutorial.CreateTutorialActivity;
 import com.system.finalcapstoneproject.CreateTutorial.TutorialActivity;
 import com.system.finalcapstoneproject.Domain.CategoryDomain;
@@ -90,7 +91,6 @@ public class HomeActivity extends AppCompatActivity {
     private Button logoutButton;
     private static final String USER_SESSION = "MyAppPrefs";
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
-    private AlertDialog dialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,7 +100,6 @@ public class HomeActivity extends AppCompatActivity {
         scannerBtn = findViewById(R.id.camera_button);
         profileBtn = findViewById(R.id.profile_button);
         homeBtn = findViewById(R.id.home_button);
-        galleryBtn = findViewById(R.id.gallery);
         popup_button = findViewById(R.id.popup_button);
         cameraBtn = findViewById(R.id.camera);
         createTutorialBtn = findViewById(R.id.createTutorialButton);
@@ -113,18 +112,15 @@ public class HomeActivity extends AppCompatActivity {
         scannerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                galleryBtn.setVisibility(View.VISIBLE);
                 cameraBtn.setVisibility(View.VISIBLE);
                 createTutorialBtn.setVisibility(View.VISIBLE);
                 scannerBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (galleryBtn.getVisibility() == View.VISIBLE && cameraBtn.getVisibility() == View.VISIBLE) {
-                            galleryBtn.setVisibility(View.GONE);
+                        if (cameraBtn.getVisibility() == View.VISIBLE) {
                             cameraBtn.setVisibility(View.GONE);
                             createTutorialBtn.setVisibility(View.GONE);
                         } else {
-                            galleryBtn.setVisibility(View.VISIBLE);
                             cameraBtn.setVisibility(View.VISIBLE);
                             createTutorialBtn.setVisibility(View.VISIBLE);
                         }
@@ -134,33 +130,16 @@ public class HomeActivity extends AppCompatActivity {
                 parent.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        galleryBtn.setVisibility(View.GONE);
                         cameraBtn.setVisibility(View.GONE);
                         createTutorialBtn.setVisibility(View.GONE);
-                    }
-                });
-
-                galleryBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
-                        } else {
-                            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                            startActivityForResult(intent, GALLERY_REQUEST_CODE);
-                        }
                     }
                 });
 
                 cameraBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
-                        } else {
-                            Intent cameraIntent = new Intent(HomeActivity.this, CameraActivity.class);
-                            startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
-                        }
+                        Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+                        startActivity(intent);
                     }
                 });
             }
@@ -194,6 +173,14 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(HomeActivity.this, TutorialActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        homeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, BarangayLogsActivity.class);
                 startActivity(intent);
             }
         });
@@ -437,7 +424,10 @@ public class HomeActivity extends AppCompatActivity {
                     String user_id = sharedPreferences.getString("user_id", "");
                     Log.e("HomeActivity", "retrieveUserDetails - User ID:" + user_id);
                     String postData = "user_id=" + URLEncoder.encode(user_id, "UTF-8");
-
+                    if (user_id.isEmpty()){
+                        logoutUser();
+                        clearUserSession();
+                    }
                     OutputStream outputStream = connection.getOutputStream();
                     outputStream.write(postData.getBytes());
                     outputStream.flush();

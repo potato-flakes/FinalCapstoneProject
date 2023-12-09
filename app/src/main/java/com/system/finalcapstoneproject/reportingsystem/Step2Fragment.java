@@ -18,6 +18,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -98,6 +99,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     private List<String> imageUrls = new ArrayList<>();
     private static final int RESULT_OK = Activity.RESULT_OK;
     private static final int PICK_IMAGES_REQUEST_CODE = 1;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private TextInputLayout textInputLayoutPersonName;
     private TextInputLayout barangayTextInputLayout;
     private TextInputLayout crimeDescriptionTextInputLayout;
@@ -131,6 +133,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     private TextView pmTextView;
     private TextView personNameLabel;
     private TextView gifTextView;
+    private TextView currentLocationTextView;
     private ImageView hourIncreaseButton;
     private ImageView hourDecreaseButton;
     private ImageView minuteIncreaseButton;
@@ -150,6 +153,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     private Switch setLocationButton;
     private ProgressBar progressBar;
     private ProgressBar autoGenerateProgressBar;
+    private ProgressBar currentLocationProgressBar;
     private GifImageView loadingImageView;
     private UserData userData;
     private LinearLayout animatedLayout;
@@ -241,7 +245,8 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         evidenceTextInputLayout = view.findViewById(R.id.evidenceTextInputLayout);
         typeOfCrimeLayout = view.findViewById(R.id.typeOfCrimeLayout);
         autoGenerateProgressBar = view.findViewById(R.id.autoGenerateProgressBar);
-
+        currentLocationTextView = view.findViewById(R.id.currentLocationTextView);
+        currentLocationProgressBar = view.findViewById(R.id.currentLocationProgressBar);
 
         typeOfCrimeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -337,8 +342,8 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
 
                 userData.setCrimeDate(formattedDate);
 
-                Log.d("MainActivity", "Today Button was clicked");
-                Log.d("MainActivity", "Today's Date is: " + formattedDate);
+                Log.d("IDUNNO", "Today Button was clicked");
+                Log.d("IDUNNO", "Today's Date is: " + formattedDate);
             }
         });
 
@@ -367,8 +372,8 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
 
                 userData.setCrimeDate(formattedDate);
 
-                Log.d("MainActivity", "Yesterday Button was clicked");
-                Log.d("MainActivity", "Yesterday's Date is: " + formattedDate);
+                Log.d("IDUNNO", "Yesterday Button was clicked");
+                Log.d("IDUNNO", "Yesterday's Date is: " + formattedDate);
             }
         });
 
@@ -426,7 +431,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         hourIncreaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("MainActivity", "Hour increase Button was clicked");
+                Log.d("IDUNNO", "Hour increase Button was clicked");
                 int hour = Integer.parseInt(hourEditText.getText().toString());
                 if (hour < 12) {
                     hour++;
@@ -440,7 +445,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         hourDecreaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("MainActivity", "Hour decrease Button was clicked");
+                Log.d("IDUNNO", "Hour decrease Button was clicked");
                 int hour = Integer.parseInt(hourEditText.getText().toString());
                 if (hour > 1) {
                     hour--;
@@ -454,7 +459,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         minuteIncreaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("MainActivity", "Minute increase Button was clicked");
+                Log.d("IDUNNO", "Minute increase Button was clicked");
                 int minute = Integer.parseInt(minuteEditText.getText().toString());
                 if (minute < 59) {
                     minute++;
@@ -468,7 +473,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         minuteDecreaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("MainActivity", "Hour decrease Button was clicked");
+                Log.d("IDUNNO", "Hour decrease Button was clicked");
                 int minute = Integer.parseInt(minuteEditText.getText().toString());
                 if (minute > 0) {
                     minute--;
@@ -483,7 +488,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         amTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("MainActivity", "AM Button was clicked");
+                Log.d("IDUNNO", "AM Button was clicked");
                 amTextView.setTextColor(prmyClr);
                 pmTextView.setTextColor(Color.GRAY);
             }
@@ -492,7 +497,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         pmTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("MainActivity", "PM Button was clicked");
+                Log.d("IDUNNO", "PM Button was clicked");
                 amTextView.setTextColor(Color.GRAY);
                 pmTextView.setTextColor(prmyClr);
             }
@@ -572,7 +577,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
                 if (isChecked) {
                     userData.setLocationEnabled(isChecked);
                     setLocation();
-                    Log.d("MainActivity", "setLocationButton - Switch Button was turned ON");
+                    Log.d("IDUNNO", "setLocationButton - Switch Button was turned ON");
                 } else {
                     userData.setLocationEnabled(isChecked);
                     // If the switch is turned off, reset the location flag
@@ -581,7 +586,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
                         removeUserMarker();
                     }
                     stopLocationUpdates();
-                    Log.d("MainActivity", "setLocationButton - Switch Button was turned OFF");
+                    Log.d("IDUNNO", "setLocationButton - Switch Button was turned OFF");
                 }
             }
         });
@@ -590,9 +595,16 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
             @Override
             public void onClick(View v) {
                 showLocationBottomSheet();
-                Log.d("MainActivity", "View Maps Button was clicked");
+                Log.d("IDUNNO", "View Maps Button was clicked");
             }
         });
+
+        if (checkLocationPermission()) {
+            // Initialize location manager and listener
+            initLocationManager();
+        }
+
+        currentLocationProgressBar.setVisibility(View.VISIBLE);
 
         // Set a click listener for the "Add Image" container
         addImageContainer.setOnClickListener(new View.OnClickListener() {
@@ -682,6 +694,94 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         return view;
     }
 
+    private boolean checkLocationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) !=
+                        PackageManager.PERMISSION_GRANTED) {
+            // Request the permission
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+            return false;
+        }
+        return true;
+    }
+
+    private void initLocationManager() {
+        locationManager = (LocationManager) requireActivity().getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                // Handle location updates
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+
+                // Convert coordinates to a user-friendly address
+                String address = getAddressFromLocation(latitude, longitude);
+                currentLocationTextView.setText(address);
+                userData.setUserCurrentLocation(currentLocationTextView.getText().toString());
+                if(currentLocationTextView != null){
+                    currentLocationProgressBar.setVisibility(View.GONE);
+                    currentLocationTextView.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+                // Handle location provider status changes
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+                // Handle location provider enabled
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                // Handle location provider disabled
+            }
+        };
+
+        // Request location updates
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        }
+    }
+
+    private String getAddressFromLocation(double latitude, double longitude) {
+        Geocoder geocoder = new Geocoder(requireContext());
+        String addressText = "";
+
+        try {
+            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+
+            if (addresses != null && addresses.size() > 0) {
+                Address address = addresses.get(0);
+
+                // Extract barangay if available
+                String barangay = address.getSubLocality();
+
+                // Build the address string
+                StringBuilder addressBuilder = new StringBuilder();
+
+                // Include barangay in the address if available
+                if (barangay != null && !barangay.isEmpty()) {
+                    addressBuilder.append(barangay).append(", ");
+                }
+
+                for (int i = 0; i <= address.getMaxAddressLineIndex(); i++) {
+                    addressBuilder.append(address.getAddressLine(i));
+                    if (i < address.getMaxAddressLineIndex()) {
+                        addressBuilder.append(", ");
+                    }
+                }
+                addressText = addressBuilder.toString();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return addressText;
+    }
     private boolean generateValidateUserInputs() {
         // Validate user inputs here
         boolean isValid = true;
@@ -855,6 +955,9 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     public void onDestroyView() {
         super.onDestroyView();
         typingHandler.removeCallbacks(typingRunnable);
+        if (locationManager != null && locationListener != null) {
+            locationManager.removeUpdates(locationListener);
+        }
     }
 
     private String generateDescription() {
@@ -1098,7 +1201,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
             }
 
             int crimeHour = userData.getCrimeHour();
-            Log.d("MainActivity", "Current Hour is: " + crimeHour);
+            Log.d("IDUNNO", "Current Hour is: " + crimeHour);
             if (crimeHour >= 0) {
                 // Time is set, you can use the `crimeHour` value here
                 int storedCrimeHour = crimeHour; // Get the hour part
@@ -1117,8 +1220,8 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
                 // Set the current time to the EditText fields
                 hourEditText.setText(String.valueOf(hour12Format));
 
-                Log.d("MainActivity", "Today Button was clicked");
-                Log.d("MainActivity", "Current Hour is: " + hourEditText.getText().toString());
+                Log.d("IDUNNO", "Today Button was clicked");
+                Log.d("IDUNNO", "Current Hour is: " + hourEditText.getText().toString());
 
                 // Set the AM/PM states based on the current hour
                 if (hourOfDay >= 12) {
@@ -1206,14 +1309,14 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
 
     //START OF LOCATION METHODS
     private void setLocation() {
-        Log.d("MainActivity", "setLocation - Set Location Button was clicked");
+        Log.d("IDUNNO", "setLocation - Set Location Button was clicked");
         // Show the loading GIF
         loadingImageView.setVisibility(View.VISIBLE);
 
         removeUserMarker();
 
         if (!setLocationButton.isChecked()) {
-            Log.e("MainActivity", "Switch button was turned off");
+            Log.e("IDUNNO", "Switch button was turned off");
             // If the switch is turned off, reset the location flag and return
             isLocationSet = false;
             // Hide the loading GIF
@@ -1231,7 +1334,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
                 return;
             } else {
                 ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-                Log.d("MainActivity", "setLocationMethod - Permission to open location not allowed");
+                Log.d("IDUNNO", "setLocationMethod - Permission to open location not allowed");
             }
             locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, new LocationListener() {
                 @Override
@@ -1283,7 +1386,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
                 // Animate to the user's location with zoom
                 final double zoomLevel = 18.5; // Set your desired zoom level as a double
                 mapView.getController().animateTo(userLocation, zoomLevel, null);
-                Log.d("MainActivity", "User location using Geopoint: " + userLocation);
+                Log.d("IDUNNO", "User location using Geopoint: " + userLocation);
                 // Inside the onLocationChanged() method, after updating the UI, hide the progress bar
                 // Hide the loading GIF
                 loadingImageView.setVisibility(View.GONE);
@@ -1408,15 +1511,15 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
             BufferedReader reader = new BufferedReader(inputStreamReader);
 
-            Log.e("MainActivity", "loadBarangaysFromCSV - Passed Latitudes value: " + sampleLatitude);
-            Log.e("MainActivity", "loadBarangaysFromCSV - Passed Longitude value: " + sampleLongitude);
+            Log.e("IDUNNO", "loadBarangaysFromCSV - Passed Latitudes value: " + sampleLatitude);
+            Log.e("IDUNNO", "loadBarangaysFromCSV - Passed Longitude value: " + sampleLongitude);
 
             // Round off the sampleLatitude and sampleLongitude to their nearest third decimal value
             sampleLatitude = roundToNearestThirdDecimal(sampleLatitude);
             sampleLongitude = roundToNearestThirdDecimal(sampleLongitude);
 
-            Log.e("MainActivity", "loadBarangaysFromCSV - Passed Latitude value: " + String.format("%.3f", sampleLatitude));
-            Log.e("MainActivity", "loadBarangaysFromCSV - Passed Longitude value: " + String.format("%.3f", sampleLongitude));
+            Log.e("IDUNNO", "loadBarangaysFromCSV - Passed Latitude value: " + String.format("%.3f", sampleLatitude));
+            Log.e("IDUNNO", "loadBarangaysFromCSV - Passed Longitude value: " + String.format("%.3f", sampleLongitude));
 
             // Read each line of the CSV file
             String line;
@@ -1434,7 +1537,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
                 if (latitude == sampleLatitude && longitude == sampleLongitude) {
                     // Sample location found
                     correspondingBarangayName = barangayData[4];
-                    Log.e("MainActivity", "loadBarangaysFromCSV - Corresponding Barangay name: " + correspondingBarangayName);
+                    Log.e("IDUNNO", "loadBarangaysFromCSV - Corresponding Barangay name: " + correspondingBarangayName);
                     break; // Exit the loop since we found the sample location
                 }
             }
@@ -1484,7 +1587,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
             mapView.getOverlays().remove(userMarker);
             mapView.invalidate();
             userMarker = null;
-            Log.d("MainActivity", "User Marker was removed");
+            Log.d("IDUNNO", "User Marker was removed");
         }
     }
 
@@ -1505,9 +1608,9 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
 
         // Create a new instance of the LocationBottomSheetFragment
         LocationBottomSheetFragment fragment = LocationBottomSheetFragment.newInstance(userData, latitude, longitude);
-        Log.d("MainActivity", "showLocationBottomSheet - New value of Latitudess :" + latitude);
-        Log.d("MainActivity", "showLocationBottomSheet - New value of Longitudes :" + longitude);
-        // Set the LocationSelectionListener on the fragment (which is MainActivity)
+        Log.d("IDUNNO", "showLocationBottomSheet - New value of Latitudess :" + latitude);
+        Log.d("IDUNNO", "showLocationBottomSheet - New value of Longitudes :" + longitude);
+        // Set the LocationSelectionListener on the fragment (which is IDUNNO)
         fragment.setLocationSelectionListener(this);
 
         // Show the fragment using a FragmentManager
@@ -1538,7 +1641,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
                 // Handle the selected barangay as desired
                 barangaySpinner.setText(selectedBarangay);
                 userData.setSelectedBarangay(barangaySpinner.getText().toString());
-                Log.d("MainActivity", "showBottomSheetDialog - Chosen Barangay :" + barangaySpinner);
+                Log.d("IDUNNO", "showBottomSheetDialog - Chosen Barangay :" + barangaySpinner);
                 userData.setLocationEnabled(false);
                 setLocationButton.setChecked(false);
                 isAffectedByOtherFunction = true;
@@ -1611,7 +1714,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
 
     //START OF DATE METHODS
     private void animateButtonsToLeft() {
-        Log.d("MainActivity", "animateButtonsToLeft - has started");
+        Log.d("IDUNNO", "animateButtonsToLeft - has started");
 
         int translateDistance = -buttonLayout.getWidth();
         Animation animation = new TranslateAnimation(0, translateDistance, 0, 0);
@@ -1644,7 +1747,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     }
 
     private void showTextViewFromRight(String date) {
-        Log.d("MainActivity", "showTextViewFromRight - has started");
+        Log.d("IDUNNO", "showTextViewFromRight - has started");
         // Set the text for the TextView
         if (userData != null) {
             String crimeDate = userData.getCrimeDate();
@@ -1665,14 +1768,14 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     }
 
     public void onDateIconClick() {
-        Log.d("MainActivity", "onIconClick - has started");
+        Log.d("IDUNNO", "onIconClick - has started");
         // Animate the dateTextView and iconImageView to the right
         animateTextViewAndIconToRight();
 
     }
 
     private void animateTextViewAndIconToRight() {
-        Log.d("MainActivity", "animateTextViewAndIconToRight - has started");
+        Log.d("IDUNNO", "animateTextViewAndIconToRight - has started");
         int translateDistance = buttonLayout.getWidth();
         Animation animation = new TranslateAnimation(0, translateDistance, 0, 0);
         animation.setDuration(500); // Adjust the duration to make the animation smoother
@@ -1702,7 +1805,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     }
 
     private void animateButtonsFromLeftToRight() {
-        Log.d("MainActivity", "animateButtonsFromLeftToRight - has started");
+        Log.d("IDUNNO", "animateButtonsFromLeftToRight - has started");
         Animation animation = new TranslateAnimation(-buttonLayout.getWidth(), 0, 0, 0);
         animation.setDuration(500); // Adjust the duration to make the animation smoother
 
@@ -1716,7 +1819,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     }
 
     private void showDatePicker() {
-        Log.d("MainActivity", "showDatePicker - has started");
+        Log.d("IDUNNO", "showDatePicker - has started");
         final Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
@@ -1741,7 +1844,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
 
                 // Show the iconImageView
                 iconImageView.setVisibility(View.VISIBLE);
-                Log.d("MainActivity", "showDatePicker - Selected Date: " + formattedDate);
+                Log.d("IDUNNO", "showDatePicker - Selected Date: " + formattedDate);
             }
         }, year, month, dayOfMonth);
 
@@ -1749,7 +1852,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     }
 
     private void showTextViewNoAnimation(String date) {
-        Log.d("MainActivity", "showTextViewFromRight - has started");
+        Log.d("IDUNNO", "showTextViewFromRight - has started");
         // Set the text for the TextView
         if (userData != null) {
             String crimeDate = userData.getCrimeDate();
@@ -1860,8 +1963,8 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
             time += " AM";
             timeIndication = "AM";
         }
-        Log.d("MainActivity", "getSelectedTime - Selected Time: " + time);
-        Log.d("MainActivity", "getSelectedTime - Selected Hour: " + hour);
+        Log.d("IDUNNO", "getSelectedTime - Selected Time: " + time);
+        Log.d("IDUNNO", "getSelectedTime - Selected Hour: " + hour);
 
         // Update the UserData object with the selected time
         userData.setCrimeHour(hour);
@@ -1887,7 +1990,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
 
     //START OF IMAGE METHODS
     private void displayImages() {
-        Log.d("MainActivity", "displayImages - has started");
+        Log.d("IDUNNO", "displayImages - has started");
         requireActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -1967,7 +2070,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     }
 
     private void openImagePicker() {
-        Log.d("MainActivity", "openImagePicker - has started");
+        Log.d("IDUNNO", "openImagePicker - has started");
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         intent.setType("image/*");
@@ -1991,7 +2094,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
                     String imageUrl = imageUri.toString();
                     userData.getSelectedImageUrls().add(imageUrl);
                     validateUserInputs();
-                    Log.d("MainActivity", "onActivityResult - FIrst condition - Image URL: " + imageUrl); // Log the image URL
+                    Log.d("IDUNNO", "onActivityResult - FIrst condition - Image URL: " + imageUrl); // Log the image URL
                 }
             } else if (data != null && data.getData() != null) {
                 Uri imageUri = data.getData();
@@ -2001,13 +2104,13 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
                 String imageUrl = imageUri.toString();
                 userData.getSelectedImageUrls().add(imageUrl);
                 validateUserInputs();
-                Log.d("MainActivity", "onActivityResult - Second condition - Image URL: " + imageUrl); // Log the image URL
+                Log.d("IDUNNO", "onActivityResult - Second condition - Image URL: " + imageUrl); // Log the image URL
             }
             // Display the selected images using the userData.getSelectedImageUrls() list
             displayImages();
         } else {
             // Log an error message if the result code or request code doesn't match
-            Log.e("MainActivity", "onActivityResult - Failed to pick images. Result code: " + resultCode + ", Request code: " + requestCode);
+            Log.e("IDUNNO", "onActivityResult - Failed to pick images. Result code: " + resultCode + ", Request code: " + requestCode);
         }
     }
 
@@ -2044,7 +2147,15 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
                 Toast.makeText(requireActivity(), "Location permission denied. Please enable it in the app settings.", Toast.LENGTH_SHORT).show();
             }
         }
-
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, initialize location manager and listener
+                initLocationManager();
+            } else {
+                // Permission denied, handle accordingly (show a message, etc.)
+                Toast.makeText(requireContext(), "Location permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     // Method to navigate back to Step1Fragment

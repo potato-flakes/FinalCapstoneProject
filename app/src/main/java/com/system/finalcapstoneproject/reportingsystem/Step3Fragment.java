@@ -445,7 +445,7 @@ public class Step3Fragment extends Fragment {
                     jsonObject.put("crime_user_phone", crime_user_phone);
                     jsonObject.put("crime_user_email", crime_user_email);
 
-                    Log.d("MainActivity", "reportCrime - Data to be passed: " + jsonObject);
+                    Log.d("IDUNNO", "reportCrime - Data to be passed: " + jsonObject);
 
                     // Send the data to the PHP API and get the response
                     URL url = new URL(UPLOAD_REPORT);
@@ -475,12 +475,12 @@ public class Step3Fragment extends Fragment {
 
                         // Parse the response as JSON
                         JSONObject jsonResponse = new JSONObject(response.toString());
-                        Log.d("MainActivity", "reportCrime - JSON Response - Data upload: " + jsonResponse);
+                        Log.d("IDUNNO", "reportCrime - JSON Response - Data upload: " + jsonResponse);
                         // Extract the report ID from the response
                         String reportId = jsonResponse.getString("reportId");
                         String message = jsonResponse.getString("message");
-                        Log.d("MainActivity", "reportCrime - Retrieved Report ID from server: " + reportId);
-                        Log.d("MainActivity", "reportCrime - Retrieved Message from server: " + message);
+                        Log.d("IDUNNO", "reportCrime - Retrieved Report ID from server: " + reportId);
+                        Log.d("IDUNNO", "reportCrime - Retrieved Message from server: " + message);
 
                         // Inside your sendReport method
                         uploadImagesToServer(imageUrls, reportId);
@@ -501,7 +501,7 @@ public class Step3Fragment extends Fragment {
                             @Override
                             public void run() {
                                 Toast.makeText(requireContext(), "Response from server does not match", Toast.LENGTH_SHORT).show();
-                                Log.e("MainActivity", "reportCrime - Check report.php");
+                                Log.e("IDUNNO", "reportCrime - Check report.php");
                             }
                         });
                     }
@@ -514,7 +514,7 @@ public class Step3Fragment extends Fragment {
                         @Override
                         public void run() {
                             Toast.makeText(requireContext(), "Please check the inputted details", Toast.LENGTH_SHORT).show();
-                            Log.e("MainActivity", "reportCrime - Check inputted details");
+                            Log.e("IDUNNO", "reportCrime - Check inputted details");
                         }
                     });
                 }
@@ -523,7 +523,7 @@ public class Step3Fragment extends Fragment {
     }
 
     private void uploadImagesToServer(final List<String> imageUrls, final String report_id) {
-        Log.d("MainActivity", "uploadImagesToServer - has started");
+        Log.d("IDUNNO", "uploadImagesToServer - has started");
         RequestQueue queue = Volley.newRequestQueue(requireContext());
         final AtomicInteger uploadCounter = new AtomicInteger(0);
 
@@ -531,7 +531,7 @@ public class Step3Fragment extends Fragment {
             StringRequest stringRequest = new StringRequest(Request.Method.POST, UPLOAD_IMAGES_REPORT, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    Log.d("MainActivity", "uploadImagesToServer - Condition: " + response);
+                    Log.d("IDUNNO", "uploadImagesToServer - Condition: " + response);
                     int count = uploadCounter.incrementAndGet();
                     if (count == imageUrls.size()) {
                         // All images have been uploaded
@@ -544,7 +544,7 @@ public class Step3Fragment extends Fragment {
                                     clearForm();
                                 } else {
                                     Toast.makeText(requireContext(), "Some images failed to upload", Toast.LENGTH_SHORT).show();
-                                    Log.e("MainActivity", "uploadImagesToServer - Check upload.php");
+                                    Log.e("IDUNNO", "uploadImagesToServer - Check upload.php");
                                 }
                             }
                         });
@@ -591,7 +591,7 @@ public class Step3Fragment extends Fragment {
 
     private void clearForm() {
         requireActivity().finish();
-        Log.d("MainActivity", "clearForm - Form Cleared");
+        Log.d("IDUNNO", "clearForm - Form Cleared");
     }
 
     private void applyClickAnimation(@AnimatorRes int animationResId, View view) {

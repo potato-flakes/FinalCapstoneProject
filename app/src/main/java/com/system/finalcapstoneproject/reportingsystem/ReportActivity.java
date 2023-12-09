@@ -225,7 +225,7 @@ public class ReportActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 closeChatNotificationSocket();
-                // Open the MainActivity to create a new report
+                // Open the IDUNNO to create a new report
                 Intent intent = new Intent(ReportActivity.this, ChatActivity.class);
                 startActivity(intent);
                 Log.d("Button", "Chat Button was clicked"); // Log the image URL
@@ -299,7 +299,7 @@ public class ReportActivity extends AppCompatActivity {
         createReportButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Open the MainActivity to create a new report
+                // Open the IDUNNO to create a new report
                 Intent intent = new Intent(ReportActivity.this, createReport_activity.class);
                 startActivity(intent);
                 Log.d("Button", "Create Report Button was clicked"); // Log the image URL
@@ -730,7 +730,7 @@ public class ReportActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 closeChatNotificationSocket();
-                // Open the MainActivity to create a new report
+                // Open the IDUNNO to create a new report
                 Intent intent = new Intent(ReportActivity.this, ChatActivity.class);
                 startActivity(intent);
             }
@@ -904,7 +904,7 @@ public class ReportActivity extends AppCompatActivity {
         return response.toString();
     }
     private void displayImages(List<String> imageUrl) {
-        Log.d("MainActivity", "displayImages - has started");
+        Log.d("IDUNNO", "displayImages - has started");
         Log.e("EditReportStep2Fragment", "displayImages - Images from the Database: " + imageUrl);
 
         // Use "this" to access the current activity's context
@@ -915,7 +915,7 @@ public class ReportActivity extends AppCompatActivity {
 
                 for (final String imageUrl : imageUrl) {
                     // Create a new FrameLayout to hold the ImageView and delete button
-                    FrameLayout imageLayout = new FrameLayout(ReportActivity.this); // Replace "MainActivity" with your activity's name
+                    FrameLayout imageLayout = new FrameLayout(ReportActivity.this); // Replace "IDUNNO" with your activity's name
                     LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT
@@ -929,7 +929,7 @@ public class ReportActivity extends AppCompatActivity {
                     imageLayout.setLayoutParams(layoutParams);
 
                     // Create a new ImageView for the image
-                    ImageView imageView = new ImageView(ReportActivity.this); // Replace "MainActivity" with your activity's name
+                    ImageView imageView = new ImageView(ReportActivity.this); // Replace "IDUNNO" with your activity's name
                     FrameLayout.LayoutParams imageParams = new FrameLayout.LayoutParams(
                             getResources().getDimensionPixelSize(R.dimen.image_width),
                             getResources().getDimensionPixelSize(R.dimen.image_height)

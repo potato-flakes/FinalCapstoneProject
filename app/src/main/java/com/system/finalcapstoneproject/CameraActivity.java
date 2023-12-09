@@ -78,8 +78,8 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               Intent intent = new Intent(CameraActivity.this, HomeActivity.class);
-               startActivity(intent);
+                Intent intent = new Intent(CameraActivity.this, HomeActivity.class);
+                startActivity(intent);
             }
         });
         captureButton.setOnClickListener(new View.OnClickListener() {
@@ -219,14 +219,14 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     }
 
     private void setAutoFlash(Camera.Parameters parameters) {
-            if (mFlashState == FLASH_STATE_OFF) {
-                parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-            } else if (mFlashState == FLASH_STATE_ON) {
-                parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-            } else if (mFlashState == FLASH_STATE_AUTO) {
-                parameters.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
-            }
-            camera.setParameters(parameters);
+        if (mFlashState == FLASH_STATE_OFF) {
+            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+        } else if (mFlashState == FLASH_STATE_ON) {
+            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+        } else if (mFlashState == FLASH_STATE_AUTO) {
+            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+        }
+        camera.setParameters(parameters);
     }
 
 
