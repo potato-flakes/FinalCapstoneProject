@@ -383,12 +383,8 @@ public class HomeActivity extends AppCompatActivity {
                             // Handle the redirection to the specific feature here
                             // For example, start a new activity or fragment that corresponds to the selected feature.
                             if ("Scan".equals(categoryName)) {
-                                if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                                    ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
-                                } else {
-                                    Intent cameraIntent = new Intent(HomeActivity.this, CameraActivity.class);
-                                    startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
-                                }
+                                Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+                                startActivity(intent);
                             } else if ("Report".equals(categoryName)) {
                                 // Redirect to the Report feature
                                 startActivity(new Intent(HomeActivity.this, ReportActivity.class));
@@ -549,7 +545,7 @@ public class HomeActivity extends AppCompatActivity {
                 int index = random.nextInt(PLASTIC_TITLES.length);
 
                 Intent intent = new Intent(getApplicationContext(), NotificationActivity.class);
-                intent.putExtra("title", PLASTIC_TITLES[index]);
+                intent.putExtra("title", PLASTIC_NAMES[index]);
                 intent.putExtra("text", PLASTIC_TEXTS[index]);
                 intent.putExtra("image", PLASTIC_IMAGES[index]);
 

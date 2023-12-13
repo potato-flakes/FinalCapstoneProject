@@ -58,11 +58,11 @@
 
             <ImageView
                 android:id="@+id/imageView"
-                android:elevation="2dp"
                 android:layout_width="match_parent"
-                android:scaleType="centerCrop"
                 android:layout_height="match_parent"
-                android:layout_centerHorizontal="true" />
+                android:layout_centerHorizontal="true"
+                android:elevation="2dp"
+                android:scaleType="centerCrop" />
 
         </FrameLayout>
 
@@ -142,46 +142,93 @@
         android:id="@+id/searchBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/mainContainer"
         android:background="@drawable/reporting_search_button_background"
-        android:padding="10dp"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:layout_margin="10dp"
+        app:layout_constraintTop_toBottomOf="@id/mainContainer">
 
         <AutoCompleteTextView
             android:id="@+id/searchEditText"
+            style="@style/SearchEditTextStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
             android:layout_marginStart="10dp"
-            android:hint="Search tutorial here"
-            android:inputType="text"
+            android:layout_weight="2"
             android:fontFamily="@font/poppinsmedium"
-            style="@style/SearchEditTextStyle" />
+            android:hint="Search tutorial here"
+            android:inputType="text" />
 
 
         <ImageButton
             android:id="@+id/searchButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
             android:layout_marginStart="8dp"
+            android:background="@android:color/transparent"
             android:src="@drawable/ic_search_edittext" />
 
     </LinearLayout>
+
     <!-- RecyclerView for Reports -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:paddingLeft="16dp"
-        android:paddingRight="16dp"
         android:paddingTop="10dp"
+        android:paddingRight="16dp"
+        android:layout_marginBottom="70dp"
         app:layout_constraintBottom_toBottomOf="@id/parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/searchBarLayout"
         app:layout_constraintVertical_bias="1.0" />
+
+    <LinearLayout
+        android:id="@+id/noTutorialLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/searchBarLayout">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:layout_marginTop="-120dp"
+            android:contentDescription="No Reports Image"
+            android:src="@drawable/ic_no_reports" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-120dp"
+            android:text="No recycled tutorial for this bottle."
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/createTutorialButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/reporting_button_rounded_background"
+        android:drawableStart="@drawable/ic_create_tutorial"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="Create Tutorial"
+        android:fontFamily="@font/poppinsmedium"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,8 +5,10 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -23,6 +25,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextUtils;
@@ -60,6 +63,11 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputLayout;
 import com.squareup.picasso.Picasso;
@@ -98,7 +106,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     private List<String> barangayOptions = new ArrayList<>();
     private List<String> imageUrls = new ArrayList<>();
     private static final int RESULT_OK = Activity.RESULT_OK;
-    private static final int PICK_IMAGES_REQUEST_CODE = 1;
+    private static final int PICK_IMAGES_REQUEST_CODE = 123;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private TextInputLayout textInputLayoutPersonName;
     private TextInputLayout barangayTextInputLayout;
@@ -164,6 +172,9 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     int prmyClr;
     double phLatitude = 12.8797;
     double phLongitude = 121.7740;
+
+    private FusedLocationProviderClient fusedLocationProviderClient;
+    private LocationCallback locationCallback;
     double zoomLevel;
 
     public void setUserData(UserData userData) {
@@ -174,7 +185,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     private Button autoGenerateButton;
 
     private String generatedDescription;
-    private int typingSpeed = 50; // Adjust the typing speed (in milliseconds)
+    private int typingSpeed = 1; // Adjust the typing speed (in milliseconds)
     private Handler typingHandler = new Handler(Looper.getMainLooper());
     private Runnable typingRunnable = new Runnable() {
         @Override
@@ -188,7 +199,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
             }
         }
     };
-
+    private static final int NEW_LOCATION_PERMISSION_REQUEST_CODE = 1001;
     @SuppressLint("ClickableViewAccessibility")
     @Nullable
     @Override
@@ -247,6 +258,23 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         autoGenerateProgressBar = view.findViewById(R.id.autoGenerateProgressBar);
         currentLocationTextView = view.findViewById(R.id.currentLocationTextView);
         currentLocationProgressBar = view.findViewById(R.id.currentLocationProgressBar);
+
+        checkLocationPermission();
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext());
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult != null) {
+                    Location location = locationResult.getLastLocation();
+                    // Use the location data as needed
+                    double latitude = location.getLatitude();
+                    double longitude = location.getLongitude();
+                    getAddressFromLocation(latitude, longitude);
+                }
+            }
+        };
 
         typeOfCrimeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -575,9 +603,16 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    userData.setLocationEnabled(isChecked);
-                    setLocation();
-                    Log.d("IDUNNO", "setLocationButton - Switch Button was turned ON");
+                    if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        userData.setLocationEnabled(isChecked);
+                        setLocation();
+                        Log.d("IDUNNO", "setLocationButton - Switch Button was turned ON");
+                        setLocationButton.setChecked(true);
+                    } else {
+                        // Location permission is not granted, request it
+                        requestLocationPermission();
+                        setLocationButton.setChecked(false);
+                    }
                 } else {
                     userData.setLocationEnabled(isChecked);
                     // If the switch is turned off, reset the location flag
@@ -598,11 +633,6 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
                 Log.d("IDUNNO", "View Maps Button was clicked");
             }
         });
-
-        if (checkLocationPermission()) {
-            // Initialize location manager and listener
-            initLocationManager();
-        }
 
         currentLocationProgressBar.setVisibility(View.VISIBLE);
 
@@ -694,62 +724,23 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         return view;
     }
 
-    private boolean checkLocationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) !=
-                        PackageManager.PERMISSION_GRANTED) {
-            // Request the permission
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
-            return false;
-        }
-        return true;
-    }
-
-    private void initLocationManager() {
-        locationManager = (LocationManager) requireActivity().getSystemService(Context.LOCATION_SERVICE);
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                // Handle location updates
-                double latitude = location.getLatitude();
-                double longitude = location.getLongitude();
-
-                // Convert coordinates to a user-friendly address
-                String address = getAddressFromLocation(latitude, longitude);
-                currentLocationTextView.setText(address);
-                userData.setUserCurrentLocation(currentLocationTextView.getText().toString());
-                if(currentLocationTextView != null){
-                    currentLocationProgressBar.setVisibility(View.GONE);
-                    currentLocationTextView.setVisibility(View.VISIBLE);
-                }
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-                // Handle location provider status changes
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-                // Handle location provider enabled
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                // Handle location provider disabled
-            }
-        };
-
-        // Request location updates
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+    private void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        } else {
+            // Location permission is not granted, request it
+            requestLocationPermission();
         }
     }
 
-    private String getAddressFromLocation(double latitude, double longitude) {
-        Geocoder geocoder = new Geocoder(requireContext());
-        String addressText = "";
+    private void requestLocationPermission() {
+        requestPermissions(
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                NEW_LOCATION_PERMISSION_REQUEST_CODE
+        );
+    }
+
+    private void getAddressFromLocation(double latitude, double longitude) {
+        Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
 
         try {
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
@@ -757,31 +748,37 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
             if (addresses != null && addresses.size() > 0) {
                 Address address = addresses.get(0);
 
-                // Extract barangay if available
-                String barangay = address.getSubLocality();
-
-                // Build the address string
-                StringBuilder addressBuilder = new StringBuilder();
-
-                // Include barangay in the address if available
-                if (barangay != null && !barangay.isEmpty()) {
-                    addressBuilder.append(barangay).append(", ");
-                }
-
-                for (int i = 0; i <= address.getMaxAddressLineIndex(); i++) {
-                    addressBuilder.append(address.getAddressLine(i));
-                    if (i < address.getMaxAddressLineIndex()) {
-                        addressBuilder.append(", ");
-                    }
-                }
-                addressText = addressBuilder.toString();
+                String formattedAddress = address.getAddressLine(0);
+                currentLocationProgressBar.setVisibility(View.GONE);
+                currentLocationTextView.setText(formattedAddress);
+                userData.setUserCurrentLocation(currentLocationTextView.getText().toString());
+                currentLocationTextView.setVisibility(View.VISIBLE);
+                Log.e("Step3Fragment", "Formatted Address: " + formattedAddress);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return addressText;
     }
+    private void requestLocationUpdates() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            // Request location updates
+            fusedLocationProviderClient.requestLocationUpdates(createLocationRequest(), locationCallback, null);
+        } else {
+            // Request the permission
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    private LocationRequest createLocationRequest() {
+        return new LocationRequest()
+                .setInterval(5000)
+                .setFastestInterval(3000)
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
     private boolean generateValidateUserInputs() {
         // Validate user inputs here
         boolean isValid = true;
@@ -955,9 +952,7 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     public void onDestroyView() {
         super.onDestroyView();
         typingHandler.removeCallbacks(typingRunnable);
-        if (locationManager != null && locationListener != null) {
-            locationManager.removeUpdates(locationListener);
-        }
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 
     private String generateDescription() {
@@ -1979,6 +1974,9 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
     public void onResume() {
         super.onResume();
         updateButtonUI();
+        if(isLocationEnabled()){
+            requestLocationUpdates();
+        }
     }
 
     @Override
@@ -2114,49 +2112,71 @@ public class Step2Fragment extends Fragment implements LocationSelectionListener
         }
     }
 
-
+    private boolean locationPermissionExplanationShown = false;
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == 1 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            // Permission granted, request location updates
-            if (locationManager != null) {
-                if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-            }
-        } else {
-            // Permission denied, handle accordingly
-            if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
-                // The user has denied the permission but hasn't selected "Don't ask again"
-                // You can show a dialog or message explaining why the permission is needed and request it again
-                ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_CODE);
-            } else {
-                // The user has denied the permission and selected "Don't ask again"
-                // You can show a dialog or message informing the user that the permission is required and guide them to the app settings to enable it manually
-                Toast.makeText(requireActivity(), "Location permission denied. Please enable it in the app settings.", Toast.LENGTH_SHORT).show();
-            }
-        }
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+        if (requestCode == NEW_LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, initialize location manager and listener
-                initLocationManager();
+                if (isLocationEnabled()) {
+                    Toast.makeText(requireContext(), "Location is enabled", Toast.LENGTH_SHORT).show();
+                    // Do something when location is enabled
+                } else {
+                    Toast.makeText(requireContext(), "Location is not enabled", Toast.LENGTH_SHORT).show();
+                    // Prompt the user to enable location services
+                    enableLocationSettings();
+                }
             } else {
-                // Permission denied, handle accordingly (show a message, etc.)
-                Toast.makeText(requireContext(), "Location permission denied", Toast.LENGTH_SHORT).show();
+                // Location permission denied
+                if (!locationPermissionExplanationShown && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    // This means the user has previously denied the permission
+                    // but not checked "Never ask again"
+                    // Show a rationale for requesting the permission
+                    showLocationPermissionExplanation();
+                    locationPermissionExplanationShown = true;
+                } else {
+                    // The user has denied the permission and checked "Never ask again"
+                    showLocationPermissionExplanation();
+                    Toast.makeText(requireContext(), "Location permission is required for this feature", Toast.LENGTH_SHORT).show();
+                }
             }
+        } else{
+
         }
     }
+
+    private boolean isLocationEnabled() {
+        LocationManager locationManager = (LocationManager) requireContext().getSystemService(Context.LOCATION_SERVICE);
+        return locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    private void enableLocationSettings() {
+        Intent settingsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        startActivity(settingsIntent);
+    }
+
+    // Method to show a rationale for requesting the location permission
+    private void showLocationPermissionExplanation() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Location Permission Required")
+                .setMessage("This feature requires access to your location. Please follow these steps to grant location permission:\n\n" +
+                        "1. Open the device Settings.\n" +
+                        "2. Scroll down and select 'Apps' or 'Application Manager'.\n" +
+                        "3. Find and select Recyclearn in the list.\n" +
+                        "4. Tap 'Permissions'.\n" +
+                        "5. Enable the 'Location' permission.")
+                .setNeutralButton("Go to Settings", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Open app settings
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Uri uri = Uri.fromParts("package", requireContext().getPackageName(), null);
+                        intent.setData(uri);
+                        startActivity(intent);
+                    }
+                })
+                .show();
+    }
+
 
     // Method to navigate back to Step1Fragment
     private void navigateToStep1Fragment() {

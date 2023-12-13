@@ -295,6 +295,29 @@
                 android:paddingStart="10dp"/>
         </TableRow>
 
+        <TableRow android:layout_marginBottom="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppinsmedium"
+                android:gravity="start"
+                android:text="Current Location: "
+                android:textColor="@android:color/black"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/currentLocationTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/poppinsmedium"
+                android:gravity="start"
+                android:textSize="12sp"
+                android:paddingStart="10dp"/>
+        </TableRow>
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"

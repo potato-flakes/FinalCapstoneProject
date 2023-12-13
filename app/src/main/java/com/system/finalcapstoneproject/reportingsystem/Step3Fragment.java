@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Base64;
 import android.util.Log;
@@ -68,6 +69,7 @@ public class Step3Fragment extends Fragment {
     private TextView dateOfCrimeTextView;
     private TextView suspectOfCrimeTextView;
     private TextView evidencesOfCrimeTextView;
+    private TextView currentLocationTextView;
     private EditText descOfCrimeEditText;
     private TextView nameTextView;
     private TextView sexTextView;
@@ -226,10 +228,26 @@ public class Step3Fragment extends Fragment {
             @Override
             public void onClick(View v) {
                 loadUserInfo();
-                showSummaryDialog();
+                if (isUserInfoValid()) {
+                    showSummaryDialog();
+                } else {
+                    // Display an error message or take appropriate action
+                    Toast.makeText(requireContext(), "Please fill in all required fields", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
+    }
+
+    private boolean isUserInfoValid() {
+        // Add your validation logic here
+        // For example, check if name, phone, and other required fields are not empty
+        String fname = firstNameEditText.getText().toString();
+        String lname =lastNameEditText.getText().toString();
+        String phone =phoneEditText.getText().toString();
+        String email =phoneEditText.getText().toString();
+
+        return !TextUtils.isEmpty(fname) && !TextUtils.isEmpty(lname) && !TextUtils.isEmpty(phone) && !TextUtils.isEmpty(email);
     }
 
     private void loadUserInfo() {
@@ -263,6 +281,7 @@ public class Step3Fragment extends Fragment {
         phoneTextView = dialogView.findViewById(R.id.phoneTextView);
         emailTextView = dialogView.findViewById(R.id.emailTextView);
         evidencesOfCrimeTextView = dialogView.findViewById(R.id.evidencesOfCrimeTextView);
+        currentLocationTextView = dialogView.findViewById(R.id.currentLocationTextView);
         btnCancelReport = dialogView.findViewById(R.id.btnCancelReport);
         progressBar = dialogView.findViewById(R.id.progressBar);
 
@@ -277,6 +296,7 @@ public class Step3Fragment extends Fragment {
         }
         int numberOfImages = userData.getSelectedImageUrls().size();
         evidencesOfCrimeTextView.setText(numberOfImages + " images");
+        currentLocationTextView.setText(userData.getUserCurrentLocation());
         // Set the text programmatically
         descOfCrimeEditText.setText(userData.getCrimeDescription());
 
@@ -390,7 +410,7 @@ public class Step3Fragment extends Fragment {
         final String crime_location = userData.getCrimeExactLocation();
         final Double crime_locationLatitude = userData.getCrimeLatitude();
         final Double crime_locationLongitude = userData.getCrimeLongitude();
-// Convert latitude and longitude to compatible format
+        // Convert latitude and longitude to compatible format
         Double crime_location_latitude = Double.valueOf(String.format(Locale.US, "%.6f", crime_locationLatitude));
         Double crime_location_longitude = Double.valueOf(String.format(Locale.US, "%.6f", crime_locationLongitude));
         final String crime_description = userData.getCrimeDescription();
@@ -400,6 +420,13 @@ public class Step3Fragment extends Fragment {
         final String crime_user_email = userData.getUserEmail();
         final boolean switchStatus = userData.isLocationEnabled();
         final boolean isIdentified = userData.isYesButtonSelected();
+        final String current_location = userData.getUserCurrentLocation();
+        String new_current_location = null;
+        if (current_location.isEmpty()){
+            new_current_location = "Not Allowed by User";
+        } else {
+            new_current_location = current_location;
+        }
 
         Log.e("Step3Fragment", "sendReport - userId: " + user_id);
         Log.e("Step3Fragment", "sendReport - crime_type: " + crime_type);
@@ -413,12 +440,14 @@ public class Step3Fragment extends Fragment {
         Log.e("Step3Fragment", "sendReport - crime_locationLatitude: " + crime_location_latitude);
         Log.e("Step3Fragment", "sendReport - crime_locationLongitude: " + crime_location_longitude);
         Log.e("Step3Fragment", "sendReport - crime_description: " + crime_description);
+        Log.e("Step3Fragment", "sendReport - current_location: " + current_location);
 
         Log.e("Step3Fragment", "sendReport - crime_userName: " + crime_user_name);
         Log.e("Step3Fragment", "sendReport - crime_userSex: " + crime_user_sex);
         Log.e("Step3Fragment", "sendReport - crime_userPhone: " + crime_user_phone);
         Log.e("Step3Fragment", "sendReport - crime_userEmail: " + crime_user_email);
 
+        String finalNew_current_location = new_current_location;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -435,7 +464,7 @@ public class Step3Fragment extends Fragment {
                     jsonObject.put("crime_time", formattedTime);
                     jsonObject.put("crime_barangay", crime_barangay);
                     jsonObject.put("isUseCurrentLocation", switchStatus);
-                    jsonObject.put("crime_location", crime_location);
+                    jsonObject.put("crime_location", finalNew_current_location);
                     jsonObject.put("crime_description", crime_description);
                     jsonObject.put("crime_location_latitude", crime_location_latitude);
                     jsonObject.put("crime_location_longitude", crime_location_longitude);
@@ -444,6 +473,7 @@ public class Step3Fragment extends Fragment {
                     jsonObject.put("crime_user_sex", crime_user_sex);
                     jsonObject.put("crime_user_phone", crime_user_phone);
                     jsonObject.put("crime_user_email", crime_user_email);
+                    jsonObject.put("current_location", current_location);
 
                     Log.d("IDUNNO", "reportCrime - Data to be passed: " + jsonObject);
 
@@ -634,11 +664,17 @@ public class Step3Fragment extends Fragment {
                     String email = jsonObject.getString("email");
                     String phone = jsonObject.getString("phone");
                     String gender = jsonObject.getString("gender");
+                    String defaultPhone = null;
+                    if (phone.isEmpty()){
+                        defaultPhone = "None";
+                    } else {
+                        defaultPhone = phone;
+                    }
 
                     userData.setUserFirstName(firstName);
                     userData.setUserLastName(lastName);
                     userData.setUserSex(gender);
-                    userData.setUserPhone(phone);
+                    userData.setUserPhone(defaultPhone);
                     userData.setUserEmail(email);
                 }
             } catch (IOException | JSONException e) {

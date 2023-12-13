@@ -20,8 +20,10 @@ import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +34,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.system.finalcapstoneproject.CreateTutorial.CreateTutorialActivity;
 import com.system.finalcapstoneproject.CreateTutorial.DataSetTutorialAdapter;
 import com.system.finalcapstoneproject.CreateTutorial.Tutorial;
 import com.system.finalcapstoneproject.CreateTutorial.TutorialActivity;
@@ -72,6 +75,8 @@ public class ImageProcessingActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private Bitmap passDatasetImage;
     private String dataset_target_dir;
+    private LinearLayout noTutorialLayout;
+    private Button createTutorialButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,7 +89,8 @@ public class ImageProcessingActivity extends AppCompatActivity {
         result = findViewById(R.id.result);
         imageView = findViewById(R.id.imageView);
         backBtn = findViewById(R.id.backButton);
-        // Set item click listener for the reportAdapter
+        noTutorialLayout = findViewById(R.id.noTutorialLayout);
+        createTutorialButton = findViewById(R.id.createTutorialButton);
 
         EditText searchEditText = findViewById(R.id.searchEditText);
         searchEditText.addTextChangedListener(new TextWatcher() {
@@ -105,7 +111,14 @@ public class ImageProcessingActivity extends AppCompatActivity {
             }
         });
 
-
+        createTutorialButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+              Intent intent = new Intent(ImageProcessingActivity.this, CreateTutorialActivity.class);
+              startActivity(intent);
+              finish();
+            }
+        });
         dataSetTutorialAdapter.setOnItemClickListener(new DataSetTutorialAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
@@ -289,10 +302,12 @@ public class ImageProcessingActivity extends AppCompatActivity {
             result.setText("Sting");
         } else if(predictedClass.contains("Mountain Dew")){
             result.setText("Mountain Dew");
-        } else if(predictedClass.contains("Royal")){
+        } else if(predictedClass.contains("Absolute 1L")){
             result.setText("Royal");
-        } else if(predictedClass.contains("Absolute")){
+        } else if(predictedClass.contains("Absolute 8L")){
             result.setText("Absolute");
+        } else if(predictedClass.contains("Summit")){
+            result.setText("Summit");
         }
 
         fetchTutorials(predictedClass);
@@ -316,9 +331,9 @@ public class ImageProcessingActivity extends AppCompatActivity {
         } else if (predictedClass.equals("Datu Puti Patis 350ml")) {
             dataset_target_dir = "Datu Puti Patis/";
         } else if (predictedClass.equals("Le Minerale 600ml")) {
-            dataset_target_dir = "le_minerale_600ml_folder/";
+            dataset_target_dir = "Le Minerale/";
         } else if (predictedClass.equals("C2 Solo 230ml")) {
-            dataset_target_dir = "c2_solo_230ml_folder/";
+            dataset_target_dir = "C2/";
         } else if (predictedClass.equals("Sting 300ml")) {
             dataset_target_dir = "Sting/";
         } else if (predictedClass.equals("Mountain Dew 290ml")) {
@@ -326,6 +341,8 @@ public class ImageProcessingActivity extends AppCompatActivity {
         } else if (predictedClass.equals("Royal  250ml")) {
             dataset_target_dir = "Royal/";
         } else if (predictedClass.equals("Absolute 1000ml")) {
+            dataset_target_dir = "Absolute/";
+        } else if (predictedClass.equals("Absolute 8L")) {
             dataset_target_dir = "Absolute/";
         }
 
@@ -398,6 +415,8 @@ public class ImageProcessingActivity extends AppCompatActivity {
             newpredictedClass = "Royal";
         } else if (predictedClass.equals("Absolute 1000ml")) {
             newpredictedClass = "Absolute";
+        } else if (predictedClass.equals("Absolute 8L")) {
+            newpredictedClass = "Absolute";
         }
 
         String finalNewpredictedClass = newpredictedClass;
@@ -460,6 +479,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
     private void parseReportResponse(String response) {
         // Clear the existing report list before parsing the new response
         tutorialList.clear();
+        noTutorialLayout.setVisibility(View.GONE);
         Log.e("", "" + response);
         try {
             JSONArray jsonArray = new JSONArray(response);
@@ -490,8 +510,11 @@ public class ImageProcessingActivity extends AppCompatActivity {
 
             // Reverse the order of the reportList to display newest at the top
             Collections.reverse(tutorialList);
-
+            if (tutorialList.isEmpty()){
+                noTutorialLayout.setVisibility(View.VISIBLE);
+            }
             dataSetTutorialAdapter.notifyDataSetChanged();
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
